@@ -1,0 +1,28 @@
+<div class="col-md-10 connecteAccueil">
+    <div class="row">
+          <h4>bienvenue <span id="bienvenueJ"> <%= joueur %></span></h4>
+     </div>
+    <div class="row">
+        <h5>Les parties</h5>
+
+        <p>
+            Proposer une partie : <select id="nvllePartie"> 
+                                    <option>Sélectionner</option>
+                                    <option>jeu des dix mille</option>
+                                </select>
+                                <button id="lancerPartie">lancerPartie</button>
+        </p>
+     </div>
+    <div class="row">
+            <div class="col-md-6" id="autresParties"> autresParties
+            </div>
+            <div class="col-md-6" id="mesParties">
+                <div id="containerMesParties" style="visibility:hidden">
+                     <p id="descriptifMaPartie"></p>
+                     <button id="lancerMaPartie">Lancer</button>
+                     <button id="annulerMaPartie">Annuler</button>
+                </div>
+            </div>
+
+    </div>
+</div>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>Arcade</title>
+        <link rel="stylesheet" type="text/css" href="../public/bootstrap/css/bootstrap.min.css" />
+         <link rel="stylesheet" type="text/css" href="../public/css/style_arcade.css" />
+         <meta charset="utf-8" />
+    </head>
+
+    <body>
+		<h1>Welcome</h1>
+	
+			<h4>Bienvenue</h4>
+			<div class="row">
+		<div class="panel-group col-md-offset-2 col-md-8" id="accordeon">
+			<div class = "panel panel-default">
+				<div class = "panel-heading" >
+					<a class = "accordion-toggle" href = "#item1" data-toggle = "collapse" data-parent="#accordeon"> Se connecter </a>
+				</div>
+				<div id = "item1" class = "panel-collapse collapse in">
+					<div class ="panel-body"> 
+						<div class="row">
+							<div class="form-group col-md-6">
+								<form action="/connecte" method="post" id="formulaireConnec">
+									<table>
+<tr><td><label for="pseudo">Pseudo</label></td><td><span><input type="text" id="pseudo" name="pseudo" /></span></td></tr>
+<tr><td><label for="password">Mot de passe :</label></td><td><span><input type="password" id="password" name="password" /></span></td></tr>
+<tr><td></td><td><button id="submit" class="pull-right" style="visibility:hidden">Connexion</button></td></tr>							
+									</table>
+								</form>
+								<button id="Connexion" class="pull-right">Connexion</button>
+		<!-- le boutton de coonec n'est pas dans le form mais triggeredera le submit -->
+							</div>  
+							<div id="errConnec" class="form-group col-md-6">
+									
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class = "panel-heading active">
+					<a class="accordion-toggle " href = "#item2" data-toggle = "collapse" data-parent="#accordeon"> S'inscrire </a>
+				</div>
+				<div id = "item2" class = "panel-collapse collapse">
+					<div class ="panel-body"> 
+						<div class="form-group">
+							<table>
+<tr><td><label for="inscrPseudo">Pseudo</label></td><td><span><input type="text" id="inscrPseudo" name="inscrPseudo" /></span></td><td id='logoPseudoInscr'></td><td id='explPseudoInscr'></td></tr>
+<tr><td><label for="inscrPassword">Mot de passe :</label></td><td><span><input type="password" id="inscrPassword" name="inscrPassword" /></span></td><td id='champInscrLogo'></td><td id="mdpInscr" class='mdpOK'></td></tr>
+<tr><td><label for="inscrPasswordConfirm">Confirmer Mdp :</label></td><td><span><input type="password" id="inscrPasswordConfirm" name="inscrPasswordConfirm" /></span></td><td id='champInscrLogo'></td><td id="mdpConfirmInscr" class='mdpOK'></td></tr>
+<tr><td><label for="inscrEmail">email :</label></td><td><span><input type="text" id="inscrEmail" name="inscrEmail" /></span></td><td id='champInscrLogo'></td><td id='champInscrMailExplications'></td></tr>
+<tr><td></td><td><button id="inscrValid" class="pull-right">Valider</button></td></tr>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div> <!-- fin row -->				
+
+        <script src='../public/jquery/jquery-3.1.1.js'></script>
+        <script src='../public/bootstrap/js/bootstrap.js'></script>
+		<script src="/socket.io/socket.io.js"></script>
+		<script src="../public/js/js_pages/js_accueil.js"></script>
+    </body>
+</html>

@@ -1,0 +1,23 @@
+[33mcommit b1e3129eb8257b9b01f8695ee7af41bff1fa340e[m
+Author: maison <maison@debian>
+Date:   Thu Dec 22 13:40:42 2016 +0100
+
+    avant modularisation io
+
+[33mcommit b00ffd263241961bd724ed39bdf5928b96f45a08[m
+Author: maison <maison@debian>
+Date:   Wed Dec 21 09:11:51 2016 +0100
+
+    allo
+
+[33mcommit 97625c26114791234035b7f9fdd16b74df0ef4be[m
+Author: maison <maison@debian>
+Date:   Tue Dec 20 14:47:09 2016 +0100
+
+    connexion ok (mais artificiel) et encart connexion commencé à être crée. => Creer fonction de récupération de joueur, puis les ajouter à la variable de session joueurs; et enfin les acter dans views/partials/panneau_connecte.ejs
+
+[33mcommit 9dfbc883f5f4b0d623fbf816c1c02f6f772e1359[m
+Author: maison <maison@debian>
+Date:   Sun Dec 18 01:36:04 2016 +0100
+
+    debut

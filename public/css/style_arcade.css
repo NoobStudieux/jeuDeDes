@@ -1,0 +1,72 @@
+body
+{
+	background-color : gray;
+}
+header{
+
+/*	background-color: red; */
+}
+/*
+.quitter
+{
+	font-size:15px;
+	color: red;
+}*/
+h4
+{
+	font-family :Verdana;
+	text-align : left;
+	color : yellow;
+	text-shadow : 2px 2px 2px black;
+}
+td
+{
+	margin : 3px 3px 3px 3px ; padding: 2px;
+}
+/*   page root   */
+#inscrValid
+{
+	margin-top : 3px;
+}
+#errConnec
+{
+	 visibility: hidden; padding: 4px; text-align:center; font-size: 15px;  /* width: 55px; */
+}
+.explicationsOK, .explicationsNOK
+{
+	border-radius: 10px; padding: 0; font-family: Impact; font-size : 10px;
+	border : 1px solid black;
+}
+.explicationsOK  /* sert lorsqu'une explication est positive */
+{
+	background-color: #9CB19C;
+	color: #00D800;
+	text-shadow: 1px 1px 1px white;
+}
+.explicationsNOK /* négative */
+{
+	background-color: #D68888;
+	color: #FF0600;
+	text-shadow: 1px 1px 1px black;
+}
+.listeJCo
+{
+	height:100%;
+	max-height:100%;
+	min-height:100%;
+	color:green;
+}
+.connecteAccueil
+{
+	background-color: blue;
+}
+
+/****	surcharge bootstrap	****/
+.panel-heading
+{
+	text-align: center; border: solid 1px black;
+}
+.panel-heading a
+{
+	color: green;
+}
