@@ -1,12 +1,6 @@
 /*
 		Avec /public/js/js_Manager.js, ce sont les 2 seuls fichiers pouvant toucher / accéder à la bdd
 */
-
-// var connexion = require('./module_connexion.js').connexion();
-/*
-	voir pour avoir var connexion en variable pas à chaque mdule
-
-*/
 var Promise = require('promise');
 
 exports.checkDB = function()
@@ -14,6 +8,8 @@ exports.checkDB = function()
 /*
 		Vérification de l'existence des tables (et création sinon): 
 			- membres
+			- parties
+			- correspondances
 */
 	var connexion = require('./module_connexion.js').connexion();
 	connexion.connect();
@@ -34,18 +30,20 @@ exports.checkDB = function()
 			else{		console.log('table membres OK');  }	
 	});
 
+// il faudra également annuler les parties lancées à la session précédentes, ou les effacer.
+
 	query = connexion.query(`CREATE TABLE IF NOT EXISTS parties(
 	
 		id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT,
-		etat VARCHAR(14) NOT NULL,
+		etat VARCHAR(8) NOT NULL,
 		jeu VARCHAR(20) NOT NULL,
-		nbJMax SMALLINT UNSIGNED NOT NULL,
-		lanceur VARCHAR(14) NOT NULL,
+		idLanceur SMALLINT UNSIGNED NOT NULL,
 		date_creation DATETIME NOT NULL,
 		date_fin DATETIME NOT NULL,
 		idVainqueur SMALLINT UNSIGNED NOT NULL,
 		PRIMARY KEY ( id ),
-		INDEX ind_idVainqueur(idVainqueur)
+		INDEX ind_idVainqueur(idVainqueur),
+		INDEX ind_idLanceur(idLanceur)
 	)
 	ENGINE=INNODB`, function(err, result) {
 			if(err){		console.log('erreur lors de crétaion table parties : ' + err);  }
@@ -53,22 +51,25 @@ exports.checkDB = function()
 	});
 	query = connexion.query(`CREATE TABLE IF NOT EXISTS correspondances(
 	
-		idMembre SMALLINT UNSIGNED NOT NULL,
 		idPartie SMALLINT UNSIGNED NOT NULL,
+		idMembre SMALLINT UNSIGNED NOT NULL,
 		gagnant VARCHAR(3),
-		CONSTRAINT fk_idMembre FOREIGN KEY ( idMembre ) REFERENCES membres (id),
-		CONSTRAINT fk_idPartie FOREIGN KEY ( idPartie ) REFERENCES membres (id)
-		)
-		ENGINE=INNODB`, function(err, result) {
-			if(err){		console.log('erreur lors de création table correspondances : ' + err);  }
-			else{		console.log('table correspondances OK');  }	
+		INDEX ind_idPartie(idPartie),
+		INDEX ind_idMembre(idMembre)
+	)
+	ENGINE=INNODB`, function(err, result) {
+		if(err){		console.log('erreur lors de crétaion table correspondances : ' + err);  }
+		else{		console.log('table correspondances OK');  }	
 	});
-/*	require('./js_objets/js_Manager.js');
-	var Manager = new require('./js_objets/js_Manager.js').Manager(connexion);
-//	console.log('depuis bdd : ' + Manager.exemple);
-//	var partie = Manager.creerPartie(23, "jeu des dix Mille");
-/*	console.log('partie : ' + partie.idLanceur)
-*/	connexion.end(function(){});
+// suppression des parties en cours au démarrage : 
+	connexion.query(`UPDATE parties SET etat='annulee' WHERE etat!='terminee' AND etat!='annulee'`, function(err, result) {
+			if(err){		console.log('erreur lors de la suppression des parties non terminees : ' + err);  }
+			else{		console.log('nettoyage table parties OK');  }	
+	});
+	connexion.end(function(){});
+/*	,
+		CONSTRAINT fk_idMembre FOREIGN KEY ( idMembre ) REFERENCES membres (id),
+		CONSTRAINT fk_idPartie FOREIGN KEY ( idPartie ) REFERENCES membres (id)*/
 }
 // INSCRIPTION : 
 exports.dispoPseudo = function(pseudo, callback){
@@ -87,7 +88,6 @@ exports.dispoPseudo = function(pseudo, callback){
 	}); 
 	connexion.end(function(err){
 			callback(pseudoDispo);
-		//	return pseudoDispo;
 		});
 }
 exports.dispoMail = function(mail, callback)
@@ -131,9 +131,7 @@ exports.idsVerif = function(credentials, callback)
 		connexion.end(function(err){
 			callback(thatsOK);
 		});
-
 }
-
 // fonctions objets (joueurs, parties)
 exports.getInfosJoueur = function getInfosJoueur(pseudo)
 {
@@ -142,51 +140,219 @@ exports.getInfosJoueur = function getInfosJoueur(pseudo)
 		connexion.connect();
 
 		connexion.query("SELECT * FROM membres WHERE pseudo='" + pseudo.trim() + "'", function(err, rows, fields) {
-									//
 									if (err){ 
 										console.log(" erreur getInfosJoueur " + err);
 										return reject(err);
 									}
-
 									return resolve(rows[0]);
-							/*
-											var joueur = new joueur(pseudo);
-											joueur.hydrate(j["id"], j["password"], j["mail"],j["points"] ,j["date_inscr"] ,j["date_last"]);
-											
-											connexion.end(function(){});
-console.log("joueurFromPseudo retour jouer");
-											return joueur; */
-						//				}
-						});
+		});
 	});
-/* avant promise :
-	var connexion = require('./module_connexion.js').connexion();
-	connexion.connect();
-
-//				try {
-						var j = connexion.query("SELECT * FROM membres WHERE pseudo= '" + pseudo + "'", function(err, rows, fields) {
-						console.log("joueurFromPseudo query");				});/*				
-									if (err) throw err; // utile ?
-									else{
-											var joueur = new joueur(pseudo);
-											joueur.hydrate(j["id"], j["password"], j["mail"],j["points"] ,j["date_inscr"] ,j["date_last"]);
-											
-											connexion.end(function(){});
-console.log("joueurFromPseudo retour jouer");
-											return joueur;
-										}
-						});
-/*				}					
-				catch(err) {
-					console.log( err.message); connexion.end(function(){});
-					return false;
-				}
-*/
-// avant promise	return j;
 }
-exports.getInfosJoueur();
-/*
-		.then(infoJ => { 
+exports.getJoueurFromPseudo = function(pseudo)
+{
+	console.log("getJoueurFromPseudo");
+	return new Promise(function(resolve, reject){
+		var connexion = require('./module_connexion.js').connexion();
+		connexion.connect();
 
+		connexion.query("SELECT * FROM membres WHERE pseudo='" + pseudo.trim() + "'", function(err, rows, fields) {
+			if (err){ 
+				console.log(" erreur getInfosJoueur " + err);
+				return reject(err);
+			}
+			var j = require('./js_objets/js_joueur');
+			var joueur = new j.Joueur(pseudo.trim());
+			joueur.hydrate(rows[0]['id'], rows[0]['password'], rows[0]['mail'],	rows[0]['points'], rows[0]['date_inscr'], rows[0]['date_last']);
+			return resolve(joueur);
+		});
+	});
+}
+function getIdDernierePartie()
+{
+	return new Promise(function(resolve, reject){
+		var connexion = require('./module_connexion.js').connexion();
+		connexion.connect();
+		connexion.query("SELECT id FROM parties ORDER BY id DESC", function(err, rows, fields) {
+			if (err){ 
+				console.log(" erreur getIdLastParties " + err);
+				return reject(err);
+			}
+			return resolve(rows[0]['id']);
+		});
+	});
+}
+function inscrireJoueurAPartie(idJ, idPartie)
+{
+	return new Promise(function(resolve, reject){
+		var connexion = require('./module_connexion.js').connexion();
+		connexion.connect();
+		donnees = {
+			idMembre: idJ,
+			idPartie: idPartie
+		};
+		connexion.query("INSERT INTO correspondances SET ?", donnees, function(err, result) {
+			if(err){		
+				console.log('erreur lors de l\'insertion dans correspondances (fonction inscrireJoueurAPartie) :\n'
+				+ err); return reject(err); 
+			}
+			return resolve();	
+		});					
+	});
+}
+exports.creationPartie = function(idLanceur, jeu)
+{
+	return new Promise(function(resolve, reject){
+		var connexion = require('./module_connexion.js').connexion();
+		connexion.connect();
 
-		});*/
+		var p = require('./js_objets/js_partie');
+		var partie = new p.Partie(idLanceur, jeu);
+
+		var donnees  = {
+			etat: partie.etat,
+			jeu: partie.jeu,
+			nbJMax: partie.nbJMax, 
+			idLanceur: partie.idLanceur, 
+			date_creation: partie.date_creation.getFullYear() + "-" + (partie.date_creation.getMonth() + 1) + "-" 
+				+ partie.date_creation.getDate() + " " + partie.date_creation.getHours() + ":" 
+				+ partie.date_creation.getMinutes() + ":" + partie.date_creation.getSeconds()
+		};
+		connexion.query("INSERT INTO parties SET ?", donnees, function(err, result) {
+			if(err){		console.log('erreur lors de l\'insertion : ' + err); return reject(err);  }
+			getIdDernierePartie().then(function(idDernierePartie){
+				partie.setId(idDernierePartie);
+				inscrireJoueurAPartie(partie.idLanceur, partie.id).then(function(){ 	return resolve(partie);		})
+					.catch(err => {console.log("js bdd creation partie catch" + err); reject(err);  });
+			}).catch(err => {	
+				console.log('erreur getIdDernierePartie catch : ' + err); 
+				reject(err);				
+			});				
+		});
+	});
+}
+function supprPartie(idPartie)
+{
+	var monIndex = -1;
+	var compteur = 0;
+	session.parties.forEach(function(partie){
+		if(partie.id == idPartie)
+		{
+			monIndex = compteur;
+		}
+		compteur ++;
+	})
+	if(monIndex != -1)
+	{
+		session.parties.slice(monIndex, 1); 
+		console.log(' supprPartie n°' + idPartie + ', liste : ' + session.parties)
+		return 1;
+	}
+	else{ console.log('impossible de supprimer la partie, index = -1'); return 0; }
+}
+function inscritsFromIdPartie(idPartie)
+{
+	return new Promise(function(resolve, reject){
+		connexion.query("SELECT * FROM correspondances WHERE idPartie=" + idPartie, function(err, rows, fields) {
+			if (err){ 
+				console.log(" erreur inscritsFromIdPartie " + err);
+				return reject(err);
+			}
+			var listIdInscrits = [];
+			rows.forEach(function(entrees){
+				listIdInscrits.push(entrees['idMembre']);
+			})
+			return resolve(listIdInscrits);  // retourne un tableau d'id
+		});
+	});
+}
+function infosPartieFromId(idPartie)
+{
+	return new Promise(function(resolve, reject){
+		var connexion = require('./module_connexion.js').connexion();
+		connexion.connect();
+		connexion.query("SELECT * FROM parties WHERE id=" + idPartie, function(err, rows, fields) {
+			if (err){ 
+				console.log(" erreur infosPartieFromId " + err);
+				return reject(err);
+			}
+			return resolve(rows[0]); // retourne LA ligne correspondante
+		});
+	});
+}
+function partieFromId(idPartie)
+{
+	return new Promise(function(resolve, reject){
+		infosPartieFromId(idPartie)
+			  .then(data => {
+				  inscritsFromIdPartie(idPartie)
+				  	.then(listDInscrits =>{
+						var p = require('./js_objets/js_partie');
+						var partie = new p.Partie(data['idLanceur'], data['jeu']);
+						partie.hydrate(data['id'], data['date_creation'], data['date_fin'],
+						data['idVainqueur'], listDInscrits);
+						return resolve(partie);
+					  }).catch(err => {	console.log("erreur catch inscritsFromIdPartie dans partieFromId  : " + err); return reject(err);	});
+			}).catch(err => {	console.log("erreur catch infosPartieFromId dans partieFromId  : " + err); return reject(err);	});
+	});
+}
+function partieFromList(idPartie)
+{
+	var monIndex = -1, compteur = 0;
+	session.parties.forEach(function(partie){
+		if(partie.id == idPartie){	monIndex = compteur;	}
+		compteur ++;
+	})
+	if(monIndex != -1){	return session.parties[monIndex];	}
+	else{	console.log('partieFromList : impossible de retrouver la partie n° ' + idPartie + " dans la liste.")	}	
+}
+exports.annulerUnePartie = function(idPartie)
+{
+	return new Promise(function(resolve, reject){
+		var connexion = require('./module_connexion.js').connexion();
+		connexion.connect();
+		supprPartie(idPartie);
+	//	var partie = partieFromList(idPartie);
+	//	partie.annuler();
+		connexion.query("UPDATE parties SET etat='annulee' WHERE id=" + idPartie, function(err, result) {
+			if(err){		
+				console.log('erreur lors de UPDATE annulerUnePartie : ' + err);
+				return reject(err); 
+			}
+			return resolve();
+		});
+	});
+}
+exports.getIdInscritsAUnePartieFromIdPartie = function(idPartie)
+{
+	return new Promise(function(resolve, reject){
+		var connexion = require('./module_connexion.js').connexion();
+		connexion.connect();
+		connexion.query("SELECT idMembre FROM correspondances WHERE idPartie=" + idPartie, function(err, result) {
+			if(err){		
+				console.log('erreur lors de SELECT getIdInscritsAUnePartieFromIdPartie : ' + err);
+				return reject(err); 
+			}
+			result.forEach(function(entree){
+				console.log("getIdInscritsAUnePartieFromIdPartie, idMembre :  " + entree['idMembre']);
+			})
+			return resolve();
+		});
+	});
+}
+exports.getPseudosInscrits = function(partiesIdInscr)  // partiesIdInscr[i].length  => nb inscrits session.parties[i]
+{
+	return new Promise(function(resolve, reject){
+		var connexion = require('./module_connexion.js').connexion();
+		connexion.connect();
+		connexion.query("SELECT pseudo FROM membres WHERE id=" + idPartie, function(err, result) {
+			if(err){		
+				console.log('erreur lors de SELECT getIdInscritsAUnePartieFromIdPartie : ' + err);
+				return reject(err); 
+			}
+			result.forEach(function(entree){
+				console.log("getIdInscritsAUnePartieFromIdPartie, idMembre :  " + entree['idMembre']);
+			})
+			return resolve();
+		});
+	});
+}

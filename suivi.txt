@@ -1,1 +1,29 @@
+rendu à renvoyer la liste de joueurs , parties combinés getPseudosInscrits dans bdd et
+getList .io
+
+
+
+
 La phase connexion, gestion session.joueurs est OK.
+
+Attention, points à revoir :
+
+- pk l'insertion à l'inscription en table correspondances ne fonctionne pas avec les 2 foreign key
+	=> mis un UNIQUE (idMembre, idPartie). Suffit ?
+-appuyer sur entrer dans un champ (pseudo ou password) pour une connexion envoi le post
+directement au lieu de passer par l'action du "faux bouton" (qui entraine un trigger du vrai post pour le traiter avant l'envoi; dans js/js_pages/accueil.js)
+
+-le bouton quitter procède à une redirection ( à voir en cas de changement d'environnement )
+
+- Trigger vers correspondances.etat SUR Update parties.etat ? en cours (compléter Annulation si pas le cas)
+
+penser à : 
+
+- modifier la maj des joueurs dans le panneua_connecte.ejs => préférer une majdetoute e laiste des joueurs
+
+- enlever certaines fonctions (com .io) du point d'entrée car mauvais fonctionnement dès que le DOm n,'est pas bien chargé.
+
+
+Questions post projet : 
+
+- passer par le DOM pour récupérer des infos joueur semble peu sur et fiable ... alternative ?

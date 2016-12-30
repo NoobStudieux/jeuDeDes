@@ -1,89 +1,61 @@
-function Partie(lanceur)
+function Partie(idLanceur, jeu)
 {
-		this.lanceur = lanceur;
-		this.lanceur = lanceur;
-		this.lanceur = lanceur;
-	
-/*	this.nom = nom;
-	this.nom = nom;
-	this.nom = nom;
-	this.nom = nom;*/
-/*
-	this.hydrate = function(id, password, mail, points, date_inscr, date_last)
+	this.id=-1;
+	this.idLanceur = idLanceur;
+	this.jeu = jeu;
+	this.etat = "lancee";		// 'lancee' , 'en cours', 'annulee' ou 'terminee'
+	this.date_creation = new Date();
+	this.inscrits = [idLanceur];
+	this.nbJMax = 0;
+	this.nbJMin = 0;
+
+	if(jeu == "jeu des dix Milles")
 	{
-		this.id = id;
-		this.password = password;
-		this.mail = mail;
-		this.points = points;
-		this.date_inscr = date_inscr;
-		this.date_last = date_last;
-}
-	*/
+		this.nbJMax = 5;
+		this.nbJMin = 2;
+	}/*else if(){
 
-}/*
-Joueur.prototype.fooBar = function() {
-
-};
-*/
-/*
-exports.joueurFromPseudo= function(pseudo)
-{
-	var connexion = require('../js_connexion/module_connexion.js').connexion();
-console.log("joueurFromPseudo");
-	connexion.connect();
-
-//				try {
-						var j = connexion.query("SELECT * FROM membres WHERE pseudo= '" + pseudo + "'", function(err, rows, fields) {
-						console.log("joueurFromPseudo query");				});/*				
-									if (err) throw err; // utile ?
-									else{
-											var joueur = new joueur(pseudo);
-											joueur.hydrate(j["id"], j["password"], j["mail"],j["points"] ,j["date_inscr"] ,j["date_last"]);
-											
-											connexion.end(function(){});
-console.log("joueurFromPseudo retour jouer");
-											return joueur;
-										}
-						});
-/*				}					
-				catch(err) {
-					console.log( err.message); connexion.end(function(){});
-					return false;
-				}
-var joueur = new Joueur(pseudo); joueur.hydrate(j["id"], j["password"], j["mail"],j["points"] ,j["date_inscr"] ,j["date_last"]);
-											return joueur;
-}
-/*
-exports.isJoueurDansListe(pseudo, isConnectedCookie)
-{
-	var jConnecte = false;
-	if(isConnectedCookie)// && res.cookie('isConnected')["isConnected"] == true)
+	}*/
+	else
 	{
-		jConnecte = true;
-			// vérif liste de joueurs
-		var joueurPresent = false;
-		session.joueursConnectes.forEach(joueur){
-			if(joueur.pseudo == isConnectedCookie['pseudo'])
+		this.nbJMax = 0; this.nbJMin = 0;
+	}
+	this.addJoueur = function(idNveauJoueur){	this.inscrits.push(idNveauJoueur);	}
+	this.allInscrits = function(listIdInscrits)
+	{
+		this.inscrits = [];  	// r-a-z
+		listIdInscrits.forEach(function(inscrit){
+			this.inscrits.push(inscrit);
+		})
+	}
+	this.supprJoueur = function(idJoueurASuppr)
+	{
+		var monIndex = -1;
+		compteur = 0;
+		this.inscrits.forEach(function(idJ){
+			if(idJoueurASuppr == idJ)
 			{
-				joueurPresent = true;
+				monIndex = compteur;
 			}
-			else{
-
-			}
-		}
-		if(joueurPresent)
+			compteur ++;
+		})
+		if(monIndex != -1)
 		{
-			console.log('joueur déjà présent dans la liste des joueurs');
-		}
-		else
-		{
-			console.log('joueur ajouté dans la liste des joueurs');
-			session.joueursConnectes.push(require('./public/js/js_joueur/js_joueur.js')
-			.joueurFromPseudo(isConnected['pseudo']));
-		}
+			this.inscrits.slice(monIndex,1); return 1;
+		}else{ console.log("erreur suppression j, partie.supprJoueur : monIndex=-1"); return 0;}
 	}
-	else{
-		return false;
+	this.hydrate = function(id, date_creation, date_fin, idVainqueur, listIdInscrits)
+	{
+		this.setId(id); this.setDateCreation(date_creation); this.setDateFin(date_fin);
+		this.setIdVainqueur(idVainqueur); this.allInscrits(listIdInscrits);
 	}
-	return jConnecte;
-}*/
+	this.setId = function(id){	this.id = id; }
+	this.setDateFin = function(dateDeFin){	this.date_last = dateDeFin;		}
+	this.setDateCreation = function(dateDeCreation){		this.date_creation = dateDeCreation;	}
+	this.setId = function(id){		this.id = id;	}
+	this.setIEtat = function(id){		this.etat = etat;	}
+	this.setIdVainqueur = function(idVainqueur){	this.idVainqueur = idVainqueur;		}
+	this.annuler = function(){		this.etat = 'annulee'; this.date_last = date();		}
+	this.addPoints = function(points){		this.points += points;		}
+}
+exports.Partie = Partie;

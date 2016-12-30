@@ -49,6 +49,11 @@ td
 	color: #FF0600;
 	text-shadow: 1px 1px 1px black;
 }
+/* page connectée */
+#quitterForm:hover
+{
+	cursor:pointer;
+}
 .listeJCo
 {
 	height:100%;
@@ -58,7 +63,69 @@ td
 }
 .connecteAccueil
 {
-	background-color: blue;
+	background-color: rgb(197, 143, 143);
+}
+.autresParties				 /*concernera la divenglobante de l'affichage d'une nouvelle partie*/
+{
+	border: solid 2px orange;
+}
+#maPartieCree
+{
+	/*/ l'avertissement ponctuel à la création de sa partie'*/
+	background-color: white;
+	color: red;
+	font-family: Impact;
+	font-weight: bold;
+}
+.idAutrePartie /*  le <a> de l'id autre partie */
+{
+	color: black;
+	font-family: Verdana;
+	font-weight: bold;
+}
+.jeuAutrePartie
+{
+	color: black;
+	text-shadow: 2px 2px 2px white;
+	font-family: Verdana;
+	font-weight: italic;
+	font-size: 1.3em;
+	text-decoration : underline;
+}
+.dateAutrePartie
+{
+	color: black;
+	font-size: 0.8em;
+}
+.infosUnePartie
+{
+	
+}
+.interacUnePartie
+{
+	
+}
+.unePartieAnnulee
+{
+	background-color :  gray;
+}
+.affichAnnulee
+{
+/*		affiche "annulée" dans le carré partie		*/	
+	color:red;
+	font-family:Impact;
+	font-weight:bold;		 
+}
+button{
+
+}
+button:disabled{
+	color:gray;
+	background-color :  black;
+}
+.boutonNOK
+{
+
 }
 
 /****	surcharge bootstrap	****/

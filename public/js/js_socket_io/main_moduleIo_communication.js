@@ -1,4 +1,4 @@
-exports.loadIoModules = function(server)
+exports.loadIoModules = function(server, app)
 {
     console.log('mainIO');
     var io = require('socket.io').listen(server);
@@ -7,6 +7,6 @@ exports.loadIoModules = function(server)
         console.log('client connecte ...');
 
         require("./moduleIo_com_inscription_connexion.js").comInscr(socket);
-        require("./moduleIo_com_connecte.js").comCo(socket);
+        require("./moduleIo_com_connecte.js").comCo(socket, app);
     });
 }

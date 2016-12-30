@@ -2,15 +2,16 @@ var express = require('express');
 var session = require('cookie-session'); // Charge le middleware de sessions
 var bodyParser = require('body-parser'); // Charge le middleware de gestion des paramètres
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
-var ent = require('ent');
+var ent = require('ent');  // equivaut à htmlspecialchar en PHP (protection contre données saisies par utilisateur)
 var http = require('http');
 var cookieParser = require('cookie-parser');
 
 var app = express();
 app.use(cookieParser());
-app.use(bodyParser.json()).use(bodyParser.urlencoded({extended: true}));//.use(cookieParser);
+app.use(bodyParser.json()).use(bodyParser.urlencoded({extended: true}));
 
 session.joueursConnectes = [];
+session.parties = []; // voir suivi
 
 require('./public/js/js_bdd.js').checkDB();
 
@@ -36,7 +37,6 @@ app.use(session({secret: 'todotopsecret'}))
 					}).catch(err => {
 						res.send("erreurs : "+ err);
 					});
-					//console.log("app connecte : " + credentials)
 					}
 				else{
 					res.render('pages/pasConnecte.ejs'); //devrait ne jamais arriver
@@ -71,6 +71,6 @@ app.use(session({secret: 'todotopsecret'}))
 	
 var server = http.createServer(app);
 
-require('./public/js/js_socket_io/main_moduleIo_communication.js').loadIoModules(server);
+require('./public/js/js_socket_io/main_moduleIo_communication.js').loadIoModules(server, app);
 
 server.listen(8080);
