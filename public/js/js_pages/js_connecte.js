@@ -13,13 +13,25 @@ function refreshSInscrire()
         socket.emit('sInscrire', monPseudo);
     });
 }
+function maCouleur()
+{
+    var rgbArray = [];			
+    for(i=0; i<3; i++)
+    {
+        rgbArray.push(Math.floor((Math.random() * 255) + 1));
+    }
+    var couleur1 = rgbArray[0]; var couleur2 = rgbArray[1]; var couleur3 = rgbArray[2]; 
+    maCouleurString = "rgba(" + couleur1.toString() + "," + couleur2.toString() + "," 
+    + couleur3.toString() + ", 0.55)";
+    return maCouleurString;
+}
 function addAutrePartie(partie)
 {
-    var divEnglobante = $('<div>').addClass('autresParties col-md-6');
+    var divEnglobante = $('<div>').addClass('autresParties col-md-6').css('backgroundColor', maCouleur());
     var row = $('<div>').addClass('row');
     var informationsUnePartie = $('<div>').addClass('col-md-6 infosUnePartie');
     var interactionsUnePartie = $('<div>').addClass('col-md-6 interacUnePartie');
-    var a1 = $('<a>').text(partie.id).addClass('idAutrePartie'); 
+    var a1 = $('<a>').text(partie.id).addClass('idAutrePartie badge').css('backgroundColor', maCouleur());
     var a2 = $('<a>').text(partie.jeu).addClass('jeuAutrePartie');
     var a3 = $('<a>').text(partie.date_creation).addClass('dateAutrePartie');
     var bouton = $('<button>').text("S'inscrire").addClass('sInscrire');
@@ -92,17 +104,20 @@ console.log('annulation partie reçu');
         }, 2000); // les parties annulées disparaissent après 2 secondes
     }else{     socket.emit('pbNonGere', "parent non trouvé sur socket.on 'annulationPartie' côté client ");     }
 });
-socket.on('VotrePartieAnnulee' , function(mess){ // mess = 'OK' ou 'KO' (resultat Promise annuler)
-    $('#maPartieId').text("");
-    $('#maPartieJeu').text("");
-    $('#maPartieDateCreation').text("");
-    
+socket.on('VotrePartieAnnulee' , function(mess){
+
     $('#advertPartie').text("partie annulée.").hide().css("visibility", "visible")
         .fadeIn(1000, function(){
             setTimeout(function(){
-                $('#advertPartie').fadeOut(1000, function(){
+                $('#maPartieCree').fadeOut(1000, function(){
+                    $('#advertPartie').hide();
                     $(this).css("visibility", "hidden");
-                    $('#pasDeMaPartie').css("visibility", "visible");
+                    document.getElementById('lancerPartie').disabled = false;
+                    document.getElementById('nvllePartie').disabled = false;
+                    $('#maPartieId').text("");
+                    $('#maPartieJeu').text("");
+                    $('#maPartieDateCreation').text("");
+                    $("#pasDeMaPartie").hide().css("visibility", "visible").fadeIn(800);
                 });
             }, 2000);
         });

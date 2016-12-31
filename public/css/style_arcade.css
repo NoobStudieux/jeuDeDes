@@ -1,10 +1,13 @@
 body
 {
-	background-color : gray;
+	background-image: radial-gradient(ellipse farthest-corner at 350px 165px, #00FFFF 0%, rgba(0, 0, 255, 0) 50%, #0000FF 95%);
+/*//	background-color : gray;*/
 }
 header{
 
-/*	background-color: red; */
+	 
+
+
 }
 /*
 .quitter
@@ -15,9 +18,9 @@ header{
 h4
 {
 	font-family :Verdana;
-	text-align : left;
-	color : yellow;
-	text-shadow : 2px 2px 2px black;
+	text-align : center;
+	color : rgb(18, 52, 80);
+	text-shadow: 1px 1px 1px rgb(22, 170,239);
 }
 td
 {
@@ -60,14 +63,43 @@ td
 	max-height:100%;
 	min-height:100%;
 	color:green;
+	background-color: rgba(216, 119, 15, 0.55);
+	border-radius: 7px;
+	border: groove 4px rgb(77, 16, 13);
+	
+}
+.listeJCo h4
+{
+	font-family :Verdana;
+	text-align : center;
+	color : rgb(61, 73, 53);
+	text-shadow: 2px 2Px 2px rgb(248, 129, 50);
+	background-color: rgba(15, 216, 29, 0.7);
+	border: 1px solid black;
+	padding : 3px;
+	border-radius: 4px;
+}
+#encarsJoueurs
+{
+	margin-left: 3px;
 }
 .connecteAccueil
 {
-	background-color: rgb(197, 143, 143);
+	background-color: rgba(159, 199, 52, 0.55);
+	border:1px solid rgb(5, 73, 10);
+	margin : 0px 10px 0px 10px;
+}
+.connecteAccueil h5
+{
+	font-family :Colibri;
+	text-align : center;
+	color : rgb(109, 113, 8);
+	text-shadow: 2px 2px 2px rgba(29, 8, 65, 0.55);
 }
 .autresParties				 /*concernera la divenglobante de l'affichage d'une nouvelle partie*/
 {
 	border: solid 2px orange;
+	margin : 10px 10px 10px 10px ;		/* top right bottom left */
 }
 #maPartieCree
 {
@@ -76,6 +108,18 @@ td
 	color: red;
 	font-family: Impact;
 	font-weight: bold;
+}
+#pasDeMaPartie h5
+{
+	color: rgb(18, 32, 11);
+	font-size: 1.3em;
+}
+#advertPartie
+{
+	color : rgb(47, 66,46);
+	text-shadow: 2px 2px 2px rgba(237,163,20,0.6);
+	font-size: 1.4em; font-weight: 600;
+	font-family: Impact;
 }
 .idAutrePartie /*  le <a> de l'id autre partie */
 {
@@ -137,3 +181,13 @@ button:disabled{
 {
 	color: green;
 }
+.navbar
+{
+	background-color: rgba(9, 105, 63, 0.55);
+}
+.navbar-brand, .nav
+{
+	text-shadow : 1px 1px 1px white;
+}
+
+	

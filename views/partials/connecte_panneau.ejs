@@ -1,8 +1,10 @@
-<div class="col-md-2 jumbotron listeJCo">
-    <h4>Membres connectés : </h4>
-	<ul id="listeJoueurs">
-		<%  joueurs.forEach(function(joueur){    %>
-			<li><%= joueur.pseudo%></li>
-		<% } ) %>
-	</ul>
+<div id="encarsJoueurs" class="col-md-2 jumbotron listeJCo">
+	<div class="col-md-offset-1 col-md-10">
+		<h4>Membres connectés : </h4>
+		<ul id="listeJoueurs">
+			<%  joueurs.forEach(function(joueur){    %>
+				<li><%= joueur.pseudo%></li>
+			<% } ) %>
+		</ul>
+	</div>
 </div>
