@@ -1,6 +1,7 @@
 /*
 		Avec /public/js/js_Manager.js, ce sont les 2 seuls fichiers pouvant toucher / accéder à la bdd
 */
+var session = require('cookie-session');
 var Promise = require('promise');
 
 exports.checkDB = function()
@@ -71,6 +72,12 @@ exports.checkDB = function()
 		CONSTRAINT fk_idMembre FOREIGN KEY ( idMembre ) REFERENCES membres (id),
 		CONSTRAINT fk_idPartie FOREIGN KEY ( idPartie ) REFERENCES membres (id)*/
 }
+
+/*
+		dans checkBDD, reste à : 
+			- supprimer toutes les parties non "terminee", et les entrées correspondances liées
+			- mettre un index | clés étrangères OK sur correspondances
+*/
 // INSCRIPTION : 
 exports.dispoPseudo = function(pseudo, callback){
 	var connexion = require('./module_connexion.js').connexion();
@@ -118,19 +125,30 @@ exports.idsVerif = function(credentials, callback)
 	var thatsOK = false;
 	var connexion = require('./module_connexion.js').connexion();
 	connexion.connect();
-	connexion.query("SELECT * FROM membres", function(err, rows, fields) {
-				if (err) throw err;
-				
-				rows.forEach(function(un){
-					if(un.pseudo == credentials['pseudo'] && un.password == sha256(credentials['password']))
-					{
-						thatsOK = true;
-					}
-				});
+	return new Promise(function(resolve, reject){
+		connexion.query("SELECT * FROM membres", function(err, rows, fields) {
+			if (err) {console.log("err Select idsVerif : " + err); return reject(err);		}
+			rows.forEach(function(un){
+				if(un.pseudo == credentials['pseudo'] && un.password == sha256(credentials['password']))
+				{
+					thatsOK = true;
+				}
 			});
-		connexion.end(function(err){
-			callback(thatsOK);
+			return resolve(thatsOK);
 		});
+	});
+}
+exports.isJoueurConnecte = function(pseudo)
+{
+	return new Promise(function(resolve, reject){
+		var isJCo = false;
+		session.joueursConnectes.forEach(function(joueur){
+			console.log('test si joueur co app.js, SESSION.joueur :  ' + joueur.pseudo +
+			", pseudo : " + credentials['pseudo']);
+			if(joueur.pseudo == credentials['pseudo']){	isJCo = true;}
+		})
+		return resolve(isJCo);
+	});
 }
 // fonctions objets (joueurs, parties)
 exports.getInfosJoueur = function getInfosJoueur(pseudo)
@@ -150,7 +168,7 @@ exports.getInfosJoueur = function getInfosJoueur(pseudo)
 }
 exports.getJoueurFromPseudo = function(pseudo)
 {
-	console.log("getJoueurFromPseudo");
+	
 	return new Promise(function(resolve, reject){
 		var connexion = require('./module_connexion.js').connexion();
 		connexion.connect();
@@ -163,6 +181,7 @@ exports.getJoueurFromPseudo = function(pseudo)
 			var j = require('./js_objets/js_joueur');
 			var joueur = new j.Joueur(pseudo.trim());
 			joueur.hydrate(rows[0]['id'], rows[0]['password'], rows[0]['mail'],	rows[0]['points'], rows[0]['date_inscr'], rows[0]['date_last']);
+			console.log("getJoueurFromPseudo" + joueur.mail);
 			return resolve(joueur);
 		});
 	});

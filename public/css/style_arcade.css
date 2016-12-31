@@ -83,6 +83,17 @@ td
 {
 	margin-left: 3px;
 }
+#listeJoueurs
+{
+	background-color: rgb(34, 30, 30);
+	padding : 6px;
+	text-align: center;
+	border-radius:7px;
+}
+#listeJoueurs li
+{
+	color: rgb(247, 185, 182);
+}
 .connecteAccueil
 {
 	background-color: rgba(159, 199, 52, 0.55);

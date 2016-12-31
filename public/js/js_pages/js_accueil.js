@@ -250,13 +250,10 @@ function credentialsChecker()
 					});
 					socket.on('ConnecOk', function(mess){
 						$('#errConnec').css('visibility', 'visible').removeClass("explicationsNOK").addClass("explicationsOK").text("Connexion OK").fadeIn(2000);
-					//	$('#formulaireConnec').submit(function(){   return true;  });
 						setTimeout(function(){
 							$('#errConnec').fadeOut(function(){
 									$('#errConnec').css('visibility', 'hidden');
 								}, function(){
-						//			$('#formulaireConnec').submit();
-								//		document.location = "/connexion";
 									$('#submit').trigger('click');
 									});
 						}, 1200);

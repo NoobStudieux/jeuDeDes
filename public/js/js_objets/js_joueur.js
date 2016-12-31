@@ -21,20 +21,22 @@ function Joueur(pseudo)
 	} */
 }
 exports.Joueur = Joueur;
-
+/*
 exports.joueurFromPseudo = function(pseudo)
 {
 	return new Promise(function(resolve, reject){
+		console.log('joueurFromPseudo');
 		require('../js_bdd.js').getInfosJoueur(pseudo).then(j => { // tulisation d'une autre promise
 			var joueur = new Joueur(pseudo); 
 			joueur.hydrate(j["id"], j["password"], j["mail"],j["points"] ,j["date_inscr"] ,j["date_last"]);
+			console.log('retourne joueur : ' + joueur.mail);
 			return resolve(joueur);
 		}).catch(err =>{
 			console.log("err jouerFromP : " + err);
 			return reject(err);
 			});
 	});
-}
+}*/
 exports.idFromPseudo = function(pseudo)
 {
 	return new Promise(function(resolve, reject){

@@ -1,5 +1,9 @@
+window.joueur; // concerne le joueur client de cette page
+window.joueurs; // les autres joueurs connectés
+
 function majListeJoueurs(listeJoueurs)
 {
+    console.log('maj liste joueurs' + listeJoueurs.length);
     $('#listeJoueurs li').remove();
     var list=[];
     listeJoueurs.forEach(function(joueur){
@@ -45,8 +49,7 @@ function addAutrePartie(partie)
 var socket = io.connect('http://localhost:8080');
 
 socket.on('majListJoueurs', function(listeJoueurs){
-// départ d'un nouveau joueur
-    // suppressionJoueur(pseudoDeco);
+    console.log("majListJoueurs");
     majListeJoueurs(listeJoueurs);
 });
 socket.on('listParties' , function(data){
@@ -61,6 +64,7 @@ socket.on('listParties' , function(data){
 });
 socket.on('votreJoueur', function(joueur){
     window.joueur = joueur;
+    console.log('recep joueur : ' + joueur.mail);
 });
 socket.on('votreNouvellePartie' , function(partie){
     $('#maPartieId').text(partie.id);
@@ -127,7 +131,7 @@ $(function(){
 
     var monPseudo = $('#bienvenueJ').text();  // récupération du pseudo
     document.getElementById('lancerPartie').disabled = true;
-    socket.emit('jarrive', monPseudo);
+    socket.emit('getListJoueurs');
     socket.emit('getListParties', "svp");
     socket.emit('getMoiJoueur', monPseudo);
 

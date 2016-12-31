@@ -94,32 +94,29 @@ exports.comInscr = function(socket){
 				}
 			});
 		});
-				socket.on('credentials', function(credentials) {
-				require('../js_bdd.js').idsVerif(credentials, function(connecOK){
-					console.log("id verif moduleio : " + connecOK);
-							if(connecOK)
-							{
-								var isJCo = false;
-								session.joueursConnectes.forEach(function(joueur){
-									if(joueur.pseudo == credentials['pseudo'])
-									{
-										isJCo = true;
-									}
-								})
+		socket.on('credentials', function(credentials) {
+// vérification effectuée à nouveau sur .post(/connecte) (app.js)
+			require('../js_bdd.js').idsVerif(credentials)
+				.then(thatsOK => {
+					if(thatsOK)
+					{
+						require('../js_bdd.js').isJoueurConnecte(credentials['pseudo'])
+							.then(isJCo => {
 								if(isJCo)
 								{
-									// j déjà connecté
 									socket.emit('errConnec', 'Erreur de connection : ce membre est déjà connecté');
 								}
 								else{
 									socket.emit('ConnecOk', 'connection autorisée');
-									//var objJ = require('../js_objets/js_joueur.js').joueurFromPseudo(credentials['pseudo'])
-									
-									//
-								}
-							}else{
-								socket.emit('errConnec', 'Erreur de connection : veuillez vérifier Vos identifiants et mot de passe.');
-							}
-						});		
+							}}).catch(err => {	
+								console.log("socket.on('credentials' catch isJoueurConnecte :" + err);		
+								socket.emit('errConnec', 'Erreur de connection indeterminée');
+							});
+					}
+					else{	socket.emit('errConnec', 'Erreur de connection : veuillez vérifier Vos identifiants et mot de passe.');	}
+				}).catch(err => {	
+								console.log("socket.on('credentials' catch idsVerif :" + err);		
+								socket.emit('errConnec', 'Erreur de connection indeterminée');
 				});
+	});
 }

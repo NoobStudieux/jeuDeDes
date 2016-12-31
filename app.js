@@ -1,8 +1,8 @@
 var express = require('express');
 var session = require('cookie-session'); // Charge le middleware de sessions
 var bodyParser = require('body-parser'); // Charge le middleware de gestion des paramètres
-var urlencodedParser = bodyParser.urlencoded({ extended: false });
-var ent = require('ent');  // equivaut à htmlspecialchar en PHP (protection contre données saisies par utilisateur)
+var urlencodedParser = bodyParser.urlencoded({		 extended: false		 });
+var ent = require('ent');  // equivaut à htmlspecialchar en PHP (échappe données saisies par utilisateur)
 var http = require('http');
 var cookieParser = require('cookie-parser');
 
@@ -15,7 +15,6 @@ session.parties = []; // voir suivi
 
 require('./public/js/js_bdd.js').checkDB();
 
-// !!! Il faut impérativement utiliser cookie-parser avant cookie session !!! // 
 app.set('view engine', 'ejs');
 // On utilise les sessions 
 app.use(session({secret: 'todotopsecret'}))
@@ -25,23 +24,37 @@ app.use(session({secret: 'todotopsecret'}))
 	})
 	.post('/connecte', function(req, res){
 		var credentials = {		"pseudo": req.body.pseudo, "password": req.body.password		};
-
-		require('./public/js/js_bdd.js').idsVerif(credentials, function(connecOK){
-				if(connecOK)
+		
+		require('./public/js/js_bdd.js').idsVerif(credentials)
+			.then(thatsOK => {
+				if(thatsOK)
 				{
-					require('./public/js/js_objets/js_joueur.js').joueurFromPseudo(credentials['pseudo'])
-						.then(joueur => {
-							session.joueursConnectes.push(joueur);
-							console.log("session.joueursConnectes " + session.joueursConnectes.length ) ;
-							res.render('pages/Connecte.ejs', { 		joueur:credentials['pseudo'], joueurs: session.joueursConnectes	} );
-					}).catch(err => {
-						res.send("erreurs : "+ err);
-					});
+					require('./public/js/js_bdd.js').isJoueurConnecte(credentials['pseudo'])
+						.then(isJCo => {
+							if(isJCo)
+							{
+								res.render('pages/pasConnecte.ejs', {raison: "Erreur de connection : ce membre est déjà connecté"});
+							}
+							else{
+								require('./public/js/js_bdd.js').getJoueurFromPseudo(credentials['pseudo'])
+									.then(joueur => {
+										session.joueursConnectes.push(joueur);
+										res.render('pages/Connecte.ejs', { 		joueur:credentials['pseudo'], joueurs: session.joueursConnectes	} );	
+									}).catch(err => {	
+										console.log("post /connecte catch getJoueurFromPseudo :" + err);		
+										res.render('pages/pasConnecte.ejs', {raison: "post /connecte catch getJoueurFromPseudo :" + err});
+									});
+									}}).catch(err => {	
+							console.log("post /connecte catch isJoueurConnecte :" + err);		
+							res.render('pages/pasConnecte.ejs', {raison: "post /connecte catch isJoueurConnecte :" + err});
+						});
 					}
 				else{
-					res.render('pages/pasConnecte.ejs'); //devrait ne jamais arriver
-				}
-		})
+					res.render('pages/pasConnecte.ejs');
+			}}).catch(err => {
+				console.log('catch idsVerif ' + err);
+				res.render('pages/pasConnecte.ejs');
+			});
 	})
 	.get('/public/jquery/jquery-3.1.1.js', function(req, res){
 			res.sendFile(__dirname + '/public/jquery/jquery-3.1.1.js');

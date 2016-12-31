@@ -66,7 +66,8 @@ exports.comCo = function(socket, app){//, pseudoNouveauJ){
 	//	})
 		
 	});
-	socket.on('jarrive', function(pseudoNouveau) {
+	socket.on('getListJoueurs', function(pseudoNouveau) {
+		console.log('envoi majListJoueurs');
 		socket.broadcast.emit('majListJoueurs', session.joueursConnectes);
 	});
 	socket.on('getMoiJoueur', function(pseudo) {
