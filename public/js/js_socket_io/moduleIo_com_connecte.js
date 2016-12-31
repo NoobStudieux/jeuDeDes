@@ -4,12 +4,12 @@ var sha256 = require('js-sha256');
 var session = require('cookie-session'); // Charge le middleware de sessions
 var Promise = require('promise');
 
-function supprJoueur(pseudoDeco) // suppression de la liste des joueurs connects
+function supprJoueurListJoueurs(pseudoDeco)
 {
 	return new Promise(function(resolve, rejected){
 		var monIndex = -1;
 		var compteur = 0;
-
+// suppression du jouuer de la liste joueur
 		session.joueursConnectes.forEach(function(joueur){
 			if(joueur.pseudo.trim() == pseudoDeco.trim())
 			{
@@ -22,8 +22,57 @@ function supprJoueur(pseudoDeco) // suppression de la liste des joueurs connects
 			resolve();
 		}
 		else { 
-			console.log("else splice");
+			console.log("else supprJoueurListJoueurs");
 			reject(-1);	}
+	 });
+}
+function supprJoueurListSockets(pseudoDeco)
+{
+	return new Promise(function(resolve, rejected){
+		require('../js_bdd.js').getInfosJoueur(pseudoDeco)
+			.then(row => {
+				var monIndex = -1;
+				var compteur = 0;
+		// suppression du jouuer de la liste joueur
+				session.socketId.forEach(function(socketValue, cle){
+					if(cle  == row['id'])
+					{
+						monIndex = compteur;
+						console.log('suppr socketClient trouvé, cle : ' + cle + ", row.id : " + row['id'])
+					}
+					compteur ++;
+				})
+				if(monIndex != -1){ 
+					session.socketId.splice(monIndex, 1);
+					resolve();
+				}
+				else { 
+					console.log("else supprJoueurListSockets");
+					reject(-1);
+				}
+			}).catch(err => {
+				console.log(' catch supprJoueurListSockets : ' + err);
+				return reject(err);
+			});
+	});		
+}
+function supprJoueur(pseudoDeco) // suppression de la liste des joueurs connects && listSockets
+{		// fait appel aux 2 fonctions ci-dessus
+	return new Promise(function(resolve, rejected){
+		supprJoueurListJoueurs(pseudoDeco)
+			.then(function(){
+				supprJoueurListSockets(pseudoDeco)
+					.then(function(){
+						console.log(pseudoDeco + ' a correctement quitté la session (supprJoueur).');
+						return resolve();
+					}).catch(err => {
+						console.log(pseudoDeco + ' ERR quitté la session. catch supprJoueurListSockets' + err);
+						return reject();
+					});
+			}).catch(err => {
+				console.log(pseudoDeco + ' ERR quitté la session. catch supprJoueurListJoueurs : ' + err);
+				return reject();
+			});
 	 });
 }
 function supprPartie(idPartieASuppr) // suppression de la liste des parties de session + setAnnuler en status
@@ -73,6 +122,8 @@ exports.comCo = function(socket, app){//, pseudoNouveauJ){
 	socket.on('getMoiJoueur', function(pseudo) {
 		require('../js_bdd.js').getJoueurFromPseudo(pseudo)
 			.then(joueur => {
+				session.socketId[joueur.id] = socket.id;
+				console.log('test socket id : ' + session.socketId[joueur.id] + " - " + session.socketId[4]);
 				socket.emit('votreJoueur', joueur);
 			}).catch(err =>{
 				console.log("err socket.on getMoiJoueur /catch  creationPartie : " + err);

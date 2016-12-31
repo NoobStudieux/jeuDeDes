@@ -143,9 +143,7 @@ exports.isJoueurConnecte = function(pseudo)
 	return new Promise(function(resolve, reject){
 		var isJCo = false;
 		session.joueursConnectes.forEach(function(joueur){
-			console.log('test si joueur co app.js, SESSION.joueur :  ' + joueur.pseudo +
-			", pseudo : " + credentials['pseudo']);
-			if(joueur.pseudo == credentials['pseudo']){	isJCo = true;}
+			if(joueur.pseudo == pseudo){	isJCo = true;}
 		})
 		return resolve(isJCo);
 	});

@@ -131,10 +131,10 @@ $(function(){
 
     var monPseudo = $('#bienvenueJ').text();  // récupération du pseudo
     document.getElementById('lancerPartie').disabled = true;
+    socket.emit('getMoiJoueur', monPseudo); // à reception serveur : recupère la socket id
     socket.emit('getListJoueurs');
     socket.emit('getListParties', "svp");
-    socket.emit('getMoiJoueur', monPseudo);
-
+    
     window.onbeforeunload = function() {
         socket.emit('deconnexion', monPseudo);
     }

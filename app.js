@@ -12,6 +12,7 @@ app.use(bodyParser.json()).use(bodyParser.urlencoded({extended: true}));
 
 session.joueursConnectes = [];
 session.parties = []; // voir suivi
+session.socketId = []; // clé : idJoueur
 
 require('./public/js/js_bdd.js').checkDB();
 
