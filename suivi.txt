@@ -1,15 +1,20 @@
 rendu à renvoyer la liste de joueurs , parties combinés getPseudosInscrits dans bdd et
 getList .io
 
-
-
-
 La phase connexion, gestion session.joueurs est OK.
 
+URGENT :
+- js/pages/connecte.js : socket.on('validInscr' : etatInscr ne s'actualise pas. Apparement mauvaise sélection de interactionsUnePartie
+
+	Compléter le système d'insc /desinscr : 
+		1 - inscr / desisncr (presque fini)
+		2 - desinscr J sur sa deco (pas partie lancee par lui)
+		3 - 
 Attention, points à revoir :
 
 - pk l'insertion à l'inscription en table correspondances ne fonctionne pas avec les 2 foreign key
 	=> mis un UNIQUE (idMembre, idPartie). Suffit ?
+	
 -appuyer sur entrer dans un champ (pseudo ou password) pour une connexion envoi le post
 directement au lieu de passer par l'action du "faux bouton" (qui entraine un trigger du vrai post pour le traiter avant l'envoi; dans js/js_pages/accueil.js)
 
@@ -19,7 +24,8 @@ directement au lieu de passer par l'action du "faux bouton" (qui entraine un tri
 
 penser à : 
 
-- modifier la maj des joueurs dans le panneua_connecte.ejs => préférer une majdetoute e laiste des joueurs
+- dans : js.BDD.JS : getIdPartieActiveD1J , sélectionner la partie en cours BY ORDER DESC  est pas extra : 
+					 - remplacer par une jointure qui rechope l'idPartie f°(idLanceur) et etat='lancee' serait meilleur
 
 Questions post projet : 
 

@@ -181,6 +181,26 @@ button:disabled{
 .boutonNOK
 {
 
+}/*
+.etatInscr
+{
+					 /* cette classe sert uniquement à identifier (pas de style) 
+}*/
+.etatInscrAttente
+{
+	 /* Style lorsque une demande (inscr ou desinscr a été demandée) */
+	 color : none;
+	 text-decoration : none;
+	 font-weight : 200;
+	 font-family : Verdana;
+}
+.etatInscr
+{
+	 /* Style lorsque une demande (inscr ou desinscr a été confirmée par le serveur) */
+	 color : green;
+	 text-decoration : underline;
+	 font-weight : 600;
+	 font-family : Impact;
 }
 
 /****	surcharge bootstrap	****/
