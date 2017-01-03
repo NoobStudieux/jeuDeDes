@@ -88,10 +88,9 @@ exports.comCo = function(socket, app){
 							require("../js_bdd.js").annulerUnePartie(idP)
 								.then(function(){	console.log(monPseudo + " avait une partie en lancée. Annulée : " + idP);	})
 								.catch(err => {	console.log('socket.on(deconnexion annulerUnePartie /  catch : ' + err);	});
-					})
-					.catch(err => {	console.log('socket.on(deconnexion getIdPartieActiveD1J /  catch : ' + err);	});
-		}).catch(err => {	console.log('socket.on(deconnexion supprJoueur /  catch  /  error : ' + err);	});
-	});
+					}).catch(err => {	console.log('socket.on(deconnexion getIdPartieActiveD1J /  catch : ' + err);	});
+		}).catch(err => {	console.log('socket.on(deconnexion supprJoueur /  catch  /  error : ' + err);	});});
+	
 	socket.on('getListJoueurs', function(pseudoNouveau) {
 		console.log('envoi majListJoueurs');
 		socket.broadcast.emit('majListJoueurs', session.joueursConnectes);
@@ -150,7 +149,7 @@ exports.comCo = function(socket, app){
 				socket.broadcast.emit('nouvelleDesinscrAUnePartie', data);
 			}).catch(err => {
 				socket.emit('validInscrKO', data);
-				console.log("partie  #" + data['idP'] + " IMPOSSIBLE d'inscrire ce joueur : " + data['idP'] + " erreur : " + err);
+				console.log("partie  #" + data['idP'] + " IMPOSSIBLE de desinscrire ce joueur : " + data['idP'] + " erreur : " + err);
 		 });
 	});
 	socket.on('pbNonGere', function(mess){
@@ -174,5 +173,11 @@ exports.comCo = function(socket, app){
 				console.log('socket.on getListParties / catch : ' + err); return reject(err);
 			});
 	});
-
 }
+function envoyerMessTabIdsMembres(tabIdMembres, sujetMess, valeurMess)
+{
+	tabIdMembres.forEach(function(idJ){
+		socket(session.socketId[idJ]).emit(sujetMess, valeurMess);
+	})
+}
+exports.envoyerMessTabIdsMembres = envoyerMessTabIdsMembres;

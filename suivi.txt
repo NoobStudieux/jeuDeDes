@@ -4,6 +4,8 @@ getList .io
 La phase connexion, gestion session.joueurs est OK.
 
 URGENT :
+- socket.on('deconnexion') => getIdPartieActiveD1J : tout à fait n'importe quoi
+- lorsqu'un membre annule, un message est envoyé à chaque inscrit, le traiter cote client pour enable le bouton et passer amIInscris à false.
 - js/pages/connecte.js : socket.on('validInscr' : etatInscr ne s'actualise pas. Apparement mauvaise sélection de interactionsUnePartie
 
 	Compléter le système d'insc /desinscr : 

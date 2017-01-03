@@ -24,18 +24,17 @@ function refreshSInscrire()
         var buttInscr = $(interactionsUnePartie).children('.sInscrire');
         var idPartie = parseInt($(informationsUnePartie).children('.idAutrePartie').text().trim());
         var aEtatInscr = $(interactionsUnePartie).children('.etatInscr').removeClass("etatInscr").addClass("etatInscrAttente").hide(); 
-        if(window.amIInscris) // je suis déjà inscris, je me désinscris
+        if(window.amIInscris == true) // je suis déjà inscris, je me désinscris
         {
             $(aEtatInscr).hide().text("désinscription demandée").fadeIn(500);
             $(buttInscr).text("S'inscrire");  // possibilité d'ajouter une vérification avec .val(inscription); (qui ne modifie pas le texte mais simplement la avaleur du bouton)
-            $('.sInscrire').prop('disabled', false);
+            $('.sInscrire').prop('disabled', true); // en attente de la réponse serveur, tous les boutons sInscrire se disablent
             window.amIInscris = false;
             var dataDesinscr = {
                 idJ: window.joueur.id,
                 idP: idPartie
             };
             socket.emit('desinscription', dataDesinscr);
-console.log('emit desinscription, idJ : ' + dataInscr['idJ'] + ", idP:  " + dataInscr['idP']);
         }else{      // sinon je m'inscris
             $(aEtatInscr).hide().text("inscription demandée").fadeIn(500);
             $(buttInscr).text("Se désinscrire");
@@ -46,7 +45,6 @@ console.log('emit desinscription, idJ : ' + dataInscr['idJ'] + ", idP:  " + data
                 idP: idPartie
             };
             socket.emit('inscription', dataInscr);
-console.log('emit inscription, idJ : ' + dataInscr['idJ'] + ", idP:  " + dataInscr['idP']);
         }
         window.autrePartie = $(divEnglobante);
     });
@@ -153,18 +151,38 @@ socket.on('VotrePartieAnnulee' , function(mess){
             }, 2000);
         });
 });
+socket.on('vousAvezEteDesinscris' , function(mess){
+// desinscription par exemple qd un membre a annulé sa partie
+
+/*  $('#advertPartie').text("partie annulée.").hide().css("visibility", "visible")
+        .fadeIn(1000, function(){
+            setTimeout(function(){
+                $('#maPartieCree').fadeOut(1000, function(){
+                    $('#advertPartie').hide();
+                    $(this).css("visibility", "hidden");
+                    document.getElementById('lancerPartie').disabled = false;
+                    document.getElementById('nvllePartie').disabled = false;
+                    $('#maPartieId').text("");
+                    $('#maPartieJeu').text("");
+                    $('#maPartieDateCreation').text("");
+                    $("#pasDeMaPartie").hide().css("visibility", "visible").fadeIn(800);
+                });
+            }, 2000);
+    });*/
+});
 socket.on('validInscr' , function(data){ // data['idJ'] et idP
     var divEnglobante = $(window.autrePartie);
     var informationsUnePartie = $(divEnglobante).children('.infosUnePartie');
     var interactionsUnePartie = $(divEnglobante).children('.interacUnePartie');
     var monButt = $(interactionsUnePartie).children('button');
     var idPartie = parseInt($(informationsUnePartie).children('.idAutrePartie').text().trim());
-    var etatInscr = $(interactionsUnePartie).children('.etatInscr');
+    var etatInscr = $(divEnglobante).children('.etatInscr');
+//  $(interactionsUnePartie).css('backgroundColor', 'purple').css('color', 'green');
     if(data['idP'] == idPartie)
     {
         if(data['idJ'] == window.joueur.id) // on peut procéder inscr sereinement
         {
-            $(interactionsUnePartie).css('border', 'red');
+            $(etatInscr).css('border', 'groove 8px red');       // etatInscr inchopable ! 
             $(etatInscr).text("inscription validée ! ");
          /*   $(etatInscr).fadeOut(500, function(){
                 $(this).removeClass('etatInscrAttente').addClass('etatInscr').text("inscription OK").fadeIn(500);
@@ -172,6 +190,27 @@ socket.on('validInscr' , function(data){ // data['idJ'] et idP
             $(monButt).prop('disabled', false);
         }else{$(".sInscrire").prop('disabled', false); socket.emit('pbNonGere', "cote client socket.on('validInscr') : non correspondance idJ envoyé et window.joueur.id " );      } // y a eu un couac
     }else{  $(".sInscrire").prop('disabled', false); socket.emit('pbNonGere', "cote client socket.on('validInscr') : non correspondance idPart envoyé et DOM trouvé (window.autrePartie)" );      } // y a eu un couac
+    window.autrePartie = null;
+});
+socket.on('validDesinscr' , function(data){ // data['idJ'] et idP
+    var divEnglobante = $(window.autrePartie);
+    var informationsUnePartie = $(divEnglobante).children('.infosUnePartie');
+    var interactionsUnePartie = $(divEnglobante).children('.interacUnePartie');
+    var monButt = $(interactionsUnePartie).children('button');
+    var idPartie = parseInt($(informationsUnePartie).children('.idAutrePartie').text().trim());
+var etatInscr = $(interactionsUnePartie).children('.etatInscr');  // still doesn't works
+    if(data['idP'] == idPartie)
+    {
+        if(data['idJ'] == window.joueur.id) // on peut procéder inscr sereinement
+        {
+            $(interactionsUnePartie).css('border', 'red');
+            $(etatInscr).text("désinscription validée ! ");
+         /*   $(etatInscr).fadeOut(500, function(){
+                $(this).removeClass('etatInscrAttente').addClass('etatInscr').text("inscription OK").fadeIn(500);
+});*/
+            $(".sInscrire").prop('disabled', false);
+        }else{$(".sInscrire").prop('disabled', false); socket.emit('pbNonGere', "cote client socket.on('validDesinscr') : non correspondance idJ envoyé et window.joueur.id " );      } // y a eu un couac
+    }else{  $(".sInscrire").prop('disabled', false); socket.emit('pbNonGere', "cote client socket.on('validDesinscr') : non correspondance idPart envoyé et DOM trouvé (window.autrePartie)" );      } // y a eu un couac
     window.autrePartie = null;
 });
 socket.on('validInscrKO' , function(data){ // data['idJ'] et idP
