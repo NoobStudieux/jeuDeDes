@@ -172,8 +172,22 @@ console.log('envoi majListJoueurs, nb : ' + session.joueursConnectes.length);
 	socket.on('getMoiJoueur', function(pseudo) {
 		require('../js_bdd.js').getJoueurFromPseudo(pseudo)
 			.then(joueur => {
-				session.socketId[joueur.id] = socket.id;
-				console.log('test socket id : ' + session.socketId[joueur.id] + " - " + session.socketId[4]);
+				console.log("recup socket id : " + socket.id);
+			
+				session.socket[joueur.id] = socket;
+/*// test
+setInterval(function(){
+	session.joueursConnectes.forEach(function(j){
+		message = "socket du joueur : " + j.id + " - " + j.pseudo + ", socket : " + session.socket[j.id].id;
+		console.log("envoi mess test socket : \n : " + message);
+		session.socket[j.id].emit('testSocket', message);
+	//	socket.emit('testSocket', message);
+	})
+			}, 6500);
+// test */
+
+
+			//	console.log('test socket id : ' + session.socketId[joueur.id] + " - " + session.socketId[4]);
 				socket.emit('votreJoueur', joueur);
 			}).catch(err =>{
 				console.log("err socket.on getMoiJoueur /catch  creationPartie : " + err);
@@ -229,6 +243,11 @@ console.log('envoi majListJoueurs, nb : ' + session.joueursConnectes.length);
 		console.log("pbNonGere : " + mess);
 	});
 // que pour le dev ! 
+	socket.on('testMySocket', function(idJ){
+		message = "socket du joueur : " + idJ + " - , socket : " + session.socket[idJ];
+		console.log("envoi mess test socket : \n : " + message);
+		session.socket[idJ].emit('testSocket', message);
+	});
 	socket.on('getListParties', function(mess){  // mess= "pleaze ! "
 // va en réalité renvoyer un objet data !!
 		/*

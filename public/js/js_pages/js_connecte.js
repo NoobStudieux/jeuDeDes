@@ -284,4 +284,10 @@ $(function(){
         console.log('click afficherJoueurs OK');
         socket.emit('getListJoueurs');
     });
+    $('#testMySocket').click(function(){
+        socket.emit('testMySocket', window.joueur.id);
+    });
+    socket.on('testSocket' , function(mess){ 
+            console.log("Reception sockret : " + mess);
+    }); 
 });
