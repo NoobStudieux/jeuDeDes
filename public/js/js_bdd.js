@@ -182,16 +182,7 @@ exports.idsVerif = function(credentials, callback)
 		});
 	});
 }
-exports.isJoueurConnecte = function(pseudo)
-{
-	return new Promise(function(resolve, reject){
-		var isJCo = false;
-		session.joueursConnectes.forEach(function(joueur){
-			if(joueur.pseudo == pseudo){	isJCo = true;}
-		})
-		return resolve(isJCo);
-	});
-}
+
 // fonctions objets (joueurs, parties)
 exports.getInfosJoueur = function getInfosJoueur(pseudo)
 {
@@ -210,7 +201,6 @@ exports.getInfosJoueur = function getInfosJoueur(pseudo)
 }
 function getJoueurFromPseudo(pseudo)
 {
-	
 	return new Promise(function(resolve, reject){
 		var connexion = require('./module_connexion.js').connexion();
 		connexion.connect();
@@ -223,34 +213,32 @@ function getJoueurFromPseudo(pseudo)
 			var j = require('./js_objets/js_joueur');
 			var joueur = new j.Joueur(pseudo.trim());
 			joueur.hydrate(rows[0]['id'], rows[0]['password'], rows[0]['mail'],	rows[0]['points'], rows[0]['date_inscr'], rows[0]['date_last']);
-			console.log("getJoueurFromPseudo" + joueur.mail);
+console.log("getJoueurFromPseudo" + joueur.mail);
 			return resolve(joueur);
 		});
 	});
 }
 exports.getJoueurFromPseudo = getJoueurFromPseudo;
-/*
-exports.getJoueurFromPseudo = function(pseudo)
+function getJoueurFromId(idJ)
 {
-	
 	return new Promise(function(resolve, reject){
 		var connexion = require('./module_connexion.js').connexion();
 		connexion.connect();
-
-		connexion.query("SELECT * FROM membres WHERE pseudo='" + pseudo.trim() + "'", function(err, rows, fields) {
+		connexion.query("SELECT * FROM membres WHERE id=" + idJ, function(err, rows, fields) {
 			if (err){ 
-				console.log(" erreur getInfosJoueur " + err);
+				console.log(" erreur getJoueurFromId SELECT " + err);
 				return reject(err);
 			}
 			var j = require('./js_objets/js_joueur');
-			var joueur = new j.Joueur(pseudo.trim());
+			var joueur = new j.Joueur("non défini");
 			joueur.hydrate(rows[0]['id'], rows[0]['password'], rows[0]['mail'],	rows[0]['points'], rows[0]['date_inscr'], rows[0]['date_last']);
-			console.log("getJoueurFromPseudo" + joueur.mail);
+			joueur.setPseudo(rows[0]['pseudo']);
+console.log("getJoueurFromId" + joueur.mail + ", " + joueur.pseudo);
 			return resolve(joueur);
 		});
 	});
 }
-*/
+exports.getJoueurFromId = getJoueurFromId;
 function inscrireJoueurAPartie(idJ, idPartie)
 {
 	return new Promise(function(resolve, reject){
@@ -292,6 +280,7 @@ function desinscrireJoueurDunePartie(idJ, idPartie)
 	});
 }
 exports.desinscrireJoueurDunePartie = desinscrireJoueurDunePartie;
+
 function getInfosPartieFromDate(dateFormatSQL)
 {
 	console.log("getInfosPartieFromDate + " + dateFormatSQL);
@@ -329,7 +318,7 @@ exports.creationPartie = function(idLanceur, jeu)
 			if(err){		console.log('erreur lors de l\'insertion : ' + err); return reject(err);  }
 			getInfosPartieFromDate(donnees['date_creation']).then(infos => {
 				partie.setId(infos['id']);
-				session.parties[partie.id] = partie;
+				session.parties.push(partie);
 
 				inscrireJoueurAPartie(partie.idLanceur, partie.id)
 					.then(function(){ 	return resolve(partie);		})
@@ -340,63 +329,6 @@ exports.creationPartie = function(idLanceur, jeu)
 			});				
 		});
 	});
-}
-exports.getIdPartieActiveD1J = function(pseudo)
-{
-	return new Promise(function(resolve, reject){
-		var connexion = require('./module_connexion.js').connexion();
-		connexion.connect();
-		getJoueurFromPseudo(pseudo)
-			.then(j => {
-				connexion.query("SELECT idPartie FROM correspondances WHERE idMembre=" + j.id + 
-				" ORDER BY date_inscription DESC", function(err, rows){
-						if (rows == 0){		return resolve(-1);	}
-						else{	return resolve(rows[0]['idPartie']);	}						
-					});
-			}).catch(err => {
-				console.log(" catch getIdPartieActiveD1J : " +  err);
-			});
-	});
-}
-/*  A SUPPR
-function supprPartie(idPartie)
-{
-console.log(" funcrtion supprPartie, tentative suppr id p : " + idPartie);
-	var monIndex = -1;
-	var compteur = 0;
-	session.parties.forEach(function(partie){
-		if(partie.id == idPartie)
-		{
-			monIndex = compteur;
-		}
-		compteur ++;
-	})
-	if(monIndex != -1)
-	{
-		session.parties.slice(monIndex, 1); 
-		console.log(' supprPartie n°' + idPartie + ', liste : ' + session.parties)
-		return 1;
-	}
-	else{ console.log('impossible de supprimer la partie, index = -1'); return 0; }
-}
-*/
-function supprPartie(idPartieASuppr) // suppression de la liste des parties de session + setAnnuler en status
-{
-	return new Promise(function(resolve, rejected){
-		var monIndex = -1;
-		var compteur = 0;
-		idPartieASuppr = parseInt(idPartieASuppr);
-
-		session.parties.forEach(function(partie){
-			if(jpartie.id == idPartieASuppr)
-			{
-				monIndex = compteur;
-			}
-			compteur ++;
-		})
-		if(monIndex != -1){ 	session.parties.splice(monIndex, 1);	return resolve(1);	}
-		else { 	console.log("else splice"); 	return reject(-1);	}
-	 });
 }
 function inscritsFromIdPartie(idPartie)
 {
@@ -454,10 +386,10 @@ function partieFromList(idPartie)
 	if(monIndex != -1){	return session.parties[monIndex];	}
 	else{	console.log('partieFromList : impossible de retrouver la partie n° ' + idPartie + " dans la liste.")	}	
 }
-exports.annulerUnePartie = function(idPartie)
+function annulerUnePartie(idPartie)
 {
 	
-console.log('annuler parti n° ' + idPartie);
+console.log('annuler partie n° ' + idPartie);
 	var connexion = require('./module_connexion.js').connexion();
 	connexion.connect();
 
@@ -467,18 +399,21 @@ console.log('annuler parti n° ' + idPartie);
 				console.log('erreur lors de DELETE annulerUnePartie : ' + err);
 				return reject(err); 
 			}
-			return resolve(1);
+			return resolve(idPartie);
 			});
 	});
 	return new Promise(function(resolve, reject){
-		supprPartie(idPartie); // des var de sessions
-	//	var partie = partieFromList(idPartie);
-	//	partie.annuler();
+		require('./js_socket_io/moduleIo_com_connecte.js').supprPartie(idPartie); // des var de sessions
 		getIdInscritsAUnePartieFromIdPartie(idPartie)
 			.then(idInscrits => {
-				require('./js_socket_io/moduleIo_com_connecte.js')
-				.envoyerMessTabIdsMembres(idInscrits, "vousAvezEteDesinscris", idPartie); // on avise les inscits
-				connexion.query("UPDATE parties SET etat='annulee' WHERE id=" + idPartie, function(err, result) {
+		//		require('./js_socket_io/moduleIo_com_connecte.js') // pb : socket is not defined
+		//		.envoyerMessTabIdsMembres(idInscrits, "vousAvezEteDesinscris", idPartie); // on avise les inscits
+				var newDate = new Date();
+				var maintenant = newDate.getFullYear() + "-" + (newDate.getMonth() + 1) + "-" 
+				+ newDate.getDate() + " " + newDate.getHours() + ":" 
+				+ newDate.getMinutes() + ":" + newDate.getSeconds();
+				
+				connexion.query("UPDATE parties SET etat='annulee', date_fin='" + maintenant + "' WHERE id=" + idPartie, function(err, result) {
 					if(err){		
 						console.log('erreur lors de UPDATE annulerUnePartie : ' + err);
 						return reject(err); 
@@ -488,9 +423,10 @@ console.log('annuler parti n° ' + idPartie);
 							return resolve(1);
 						}).catch(err => { console.log('erreur lors de removeCorrespondances  : ' + err); });
 				});
-			}).catch(err => { console.log('erreur lors de removeCorrespondances  : ' + err); });
+			}).catch(err => { console.log('erreur lors de getIdInscritsAUnePartieFromIdPartie  : ' + err); });
 	});
 }
+exports.annulerUnePartie = annulerUnePartie;
 function getIdInscritsAUnePartieFromIdPartie(idPartie)
 {
 	return new Promise(function(resolve, reject){

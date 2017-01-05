@@ -80,16 +80,28 @@ function addAutrePartie(partie)
 }
 socket.on('majListJoueurs', function(listeJoueurs){
     majListeJoueurs(listeJoueurs);
+console.log("recep listJoueurs : nb : " + listeJoueurs.length);
+listeJoueurs.forEach(function(j){
+    console.log(j.id + " - " + j.pseudo);
+})
 });
-socket.on('listParties' , function(data){
-    var compteur = 0;
+socket.on('listParties' , function(parties){
+
+    console.log('recp liste parties, nb : ' + parties.length);
+    parties.forEach(function(p){
+        console.log('id : ' + p.id + ", lanceur : " + p.idLanceur + ", nb inscrits : " + p.inscrits.length + ", date création = " + p.date_creation);
+        p.inscrits.forEach(function(i){
+            console.log(i);
+        })
+    })
+    /*var compteur = 0;
     data["list2Parties"].forEach(function(partie){
         console.log("partie n " + partie.id + ", " + partie.jeu + " est " + partie.etat + " . inscrits : ");
         data["listDInscrits"][compteur].forEach(function(inscrit){
             console.log(inscrit);
         })
         compteur ++;
-    })
+    })*/
 });
 socket.on('votreJoueur', function(joueur){
     window.joueur = joueur;
@@ -105,6 +117,7 @@ socket.on('votreNouvellePartie' , function(partie){
                 $('#advertPartie').css("visibility", "hidden");
             }, 2000);
         });
+console.log("votreNouvellePartie " + partie.id + ", nb inscrits : " + partie.inscrits.length);
 });
 socket.on('nouvellePartie' , function(partie){
     addAutrePartie(partie);
@@ -234,7 +247,7 @@ $(function(){
     socket.emit('getListParties', "svp");
     
     window.onbeforeunload = function() {
-        socket.emit('deconnexion', monPseudo);
+        socket.emit('deconnexion', window.joueur.id);
     }
     $('#quitter').click(function(){
         $('#quitterForm').submit();
@@ -266,5 +279,9 @@ $(function(){
 
     $('#afficherListParties').click(function(){
         socket.emit('getListParties', "pleaze ! ");
+    });
+    $('#afficherJoueurs').click(function(){
+        console.log('click afficherJoueurs OK');
+        socket.emit('getListJoueurs');
     });
 });

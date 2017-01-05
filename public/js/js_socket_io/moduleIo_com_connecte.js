@@ -4,6 +4,17 @@ var sha256 = require('js-sha256');
 var session = require('cookie-session'); // Charge le middleware de sessions
 var Promise = require('promise');
 
+function isJoueurConnecte(pseudo)
+{
+	return new Promise(function(resolve, reject){
+		var isJCo = false;
+		session.joueursConnectes.forEach(function(joueur){
+			if(joueur.pseudo == pseudo){	isJCo = true;}
+		})
+		return resolve(isJCo);
+	});
+}
+exports.isJoueurConnecte = isJoueurConnecte;
 function supprJoueurListJoueurs(pseudoDeco)
 {
 	return new Promise(function(resolve, rejected){
@@ -44,7 +55,7 @@ function supprJoueurListSockets(pseudoDeco)
 				})
 				if(monIndex != -1){ 
 					session.socketId.splice(monIndex, 1);
-					resolve();
+					resolve(1);
 				}
 				else { 
 					console.log("else supprJoueurListSockets");
@@ -75,24 +86,87 @@ function supprJoueur(pseudoDeco) // suppression de la liste des joueurs connects
 			});
 	 });
 }
-exports.comCo = function(socket, app){
+function supprPartie(idPartieASuppr) // suppression de la liste des parties de session + setAnnuler en status
+{
+	return new Promise(function(resolve, rejected){
+		var monIndex = -1;
+		var compteur = 0;
+		idPartieASuppr = parseInt(idPartieASuppr);
 
-	socket.on('deconnexion', function(monPseudo) {
-		console.log('deconnexion ' + monPseudo);
-		supprJoueur(monPseudo).then(function(){
-			socket.broadcast.emit('majListJoueurs', session.joueursConnectes);
-				require("../js_bdd.js").getIdPartieActiveD1J(monPseudo)
-					.then(idP => {
-						if(idP == -1){	console.log(monPseudo + " n'avait pas de partie lancée par lui-même");	}
-						else{	socket.broadcast.emit('annulationPartie', idP); console.log("la partie n° " + idP + " créee par " + monPseudo + " va être supprimée.");	}
-							require("../js_bdd.js").annulerUnePartie(idP)
-								.then(function(){	console.log(monPseudo + " avait une partie en lancée. Annulée : " + idP);	})
-								.catch(err => {	console.log('socket.on(deconnexion annulerUnePartie /  catch : ' + err);	});
-					}).catch(err => {	console.log('socket.on(deconnexion getIdPartieActiveD1J /  catch : ' + err);	});
-		}).catch(err => {	console.log('socket.on(deconnexion supprJoueur /  catch  /  error : ' + err);	});});
-	
+		session.parties.forEach(function(partie){
+			if(partie.id == idPartieASuppr)
+			{
+				monIndex = compteur;
+			}
+			compteur ++;
+		})
+		if(monIndex != -1){ 	session.parties.splice(monIndex, 1);	return resolve(1);	}
+		else { 	console.log("else splice , monIndex " + monIndex + ", compteur : " + compteur); 	return reject(-1);	}
+	 });
+}
+exports.supprPartie = supprPartie;
+function onDecoJoueurGererSesParties(idJ)
+{
+console.log("n° " + idJ + " se déconnecte .. " + session.parties.length);
+	return new Promise(function(resolve, reject){
+		var isLanceur = false, indexPartieConcernee = -1, compteur = 0;
+		session.parties.forEach(function(p){
+// est il lanceur d'une partie
+			if(p.idLanceur == idJ){	isLanceur = true;	indexPartieConcernee = compteur;	} 
+			compteur ++;
+		})
+		if(isLanceur){	console.log(idJ + " est le lanceur d'une partie : n°" + session.parties[indexPartieConcernee].id);
+require('../js_bdd.js').annulerUnePartie(session.parties[indexPartieConcernee].id)  // lanceur oui ? annulationPartie
+			.then(idPart =>	{	
+				
+console.log("resolve	onDecoJoueurGererSesParties : OK " + idPart);
+				return resolve(idPart);	
+			/*	supprPartie(session.parties[indexPartieConcernee].id)
+					.then(function(){console.log("partie supprimée");	return resolve(1);	
+					}).catch(err => {	console.log('err supprpARTIE dans onDecoJoueurGererSesParties : ' + err); return reject(err);	});
+		*/	})
+			.catch(err => {	console.log('err annulerUnePartie dans onDecoJoueurGererSesParties : ' + err); return reject(err);	});	
+		}
+		else{ // sinon est-il inscrit ?
+			compteur = 0; var isInscrit = false;
+			session.parties.forEach(function(p){
+				p.inscrits.forEach(function(idInscr){
+console.log("itération inscrits dans inscr, idInscr : " + idInscr + ", idJ : " + idJ);
+					if(idInscr == idJ){		indexPartieConcernee = compteur; isInscrit = true;	}
+				})
+				compteur ++;
+			})
+			if(isInscrit){ console.log("inscris  OK : ");
+				require('../js_bdd.js').desinscrireJoueurDunePartie(idJ, session.parties[indexPartieConcernee].id)
+									.then(function(){	console.log("désinscription OK");
+										return resolve(-1);	})
+									.catch(err => {	console.log('err desinscrireJoueurDunePartie dans onDecoJoueurGererSesParties : ' + err); return reject(err);	});
+			}
+			else{	console.log("joueur inscris nul part"); return resolve(-1);	}
+		}
+	});	
+}
+exports.comCo = function(socket, app){
+	socket.on('deconnexion', function(idJoueur) {
+console.log("deconnexion de n°" + idJoueur);		
+		onDecoJoueurGererSesParties(idJoueur)
+			.then(idPart => {  
+if(idPart != -1) {	socket.broadcast.emit('annulationPartie', idPart);	}
+console.log("onDecoJoueurGererSesParties OK");	
+				require('../js_bdd.js').getJoueurFromId(idJoueur)
+					.then(j => {
+						supprJoueur(j.pseudo)
+							.then(function(){
+								socket.broadcast.emit('majListJoueurs', session.joueursConnectes);
+								console.log("supprJoueur " + j.pseudo + " OK, nb j restants  : " + session.joueursConnectes.length);
+							}).catch(err => { console.log("socket.on('deconnexion' catch de supprJoueur (le 2ème) : " + err); 
+						});
+					}).catch(err => { console.log("socket.on('deconnexion' catch de getJoueurFromId : " + err); });
+			}).catch(err => { console.log("socket.on('deconnexion' catch de onDecoJoueurGererSesParties : " + err); 
+		});
+	});
 	socket.on('getListJoueurs', function(pseudoNouveau) {
-		console.log('envoi majListJoueurs');
+console.log('envoi majListJoueurs, nb : ' + session.joueursConnectes.length);
 		socket.broadcast.emit('majListJoueurs', session.joueursConnectes);
 	});
 	socket.on('getMoiJoueur', function(pseudo) {
@@ -110,7 +184,6 @@ exports.comCo = function(socket, app){
 			.then(idLanceur => {
 				require('../js_bdd.js').creationPartie(idLanceur, data['jeu'].trim())
 					.then(partie =>{
-						session.parties.push(partie);
 						socket.emit('votreNouvellePartie' , partie);
 						socket.broadcast.emit('nouvellePartie', partie);
 					}).catch(err =>{
@@ -165,13 +238,13 @@ exports.comCo = function(socket, app){
 				};
 		*/
 		console.log("demande de liste reçue");
-	//	socket.emit('listParties', session.parties);
-		require('../js_bdd.js').getIdInscritsAUnePartieFromIdPartie(51)
+		socket.emit('listParties', session.parties);
+		/*require('../js_bdd.js').getIdInscritsAUnePartieFromIdPartie(51)
 			.then( listeDIdInscrits => {
 				console.log("then de lesInscritsPromise : " + listeDIdInscrits);
 			}).catch(err => {
 				console.log('socket.on getListParties / catch : ' + err); return reject(err);
-			});
+			});*/
 	});
 }
 function envoyerMessTabIdsMembres(tabIdMembres, sujetMess, valeurMess)

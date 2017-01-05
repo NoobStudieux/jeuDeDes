@@ -30,7 +30,7 @@ app.use(session({secret: 'todotopsecret'}))
 			.then(thatsOK => {
 				if(thatsOK)
 				{
-					require('./public/js/js_bdd.js').isJoueurConnecte(credentials['pseudo'])
+					require('./public/js/js_socket_io/moduleIo_com_connecte.js').isJoueurConnecte(credentials['pseudo'])
 						.then(isJCo => {
 							if(isJCo)
 							{

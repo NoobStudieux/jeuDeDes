@@ -100,7 +100,7 @@ exports.comInscr = function(socket){
 				.then(thatsOK => {
 					if(thatsOK)
 					{
-						require('../js_bdd.js').isJoueurConnecte(credentials['pseudo'])
+						require('./moduleIo_com_connecte.js').isJoueurConnecte(credentials['pseudo'])
 							.then(isJCo => {
 								if(isJCo)
 								{

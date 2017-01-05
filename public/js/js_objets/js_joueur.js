@@ -15,6 +15,10 @@ function Joueur(pseudo)
 		this.date_inscr = date_inscr;
 		this.date_last = date_last;
 	}
+	this.setPseudo = function(pseudo)
+	{
+		this.pseudo = pseudo;
+	}
 /*	this.setPartieLancee(trueOrFalse = false)
 	{
 		this.partieLancee = trueOrFalse;
