@@ -241,6 +241,8 @@ console.log("getJoueurFromId" + joueur.mail + ", " + joueur.pseudo);
 exports.getJoueurFromId = getJoueurFromId;
 function inscrireJoueurAPartie(idJ, idPartie)
 {
+console.log('inscrireJoueurAPartie ,idJ :  ' + idJ + ",  idPartie :  " + idPartie);
+// objet et BDD
 	return new Promise(function(resolve, reject){
 		var connexion = require('./module_connexion.js').connexion();
 		connexion.connect();
@@ -252,12 +254,14 @@ function inscrireJoueurAPartie(idJ, idPartie)
 				+ maintenant.getDate() + " " + maintenant.getHours() + ":" 
 				+ maintenant.getMinutes() + ":" + maintenant.getSeconds()
 		};
+console.log("insert correspondances ,idMembre :  " + idJ + ", idPartie :  " + idPartie);
 		connexion.query("INSERT INTO correspondances SET ?", donnees, function(err, result) {
 			if(err){		
 				console.log('erreur lors de l\'insertion dans correspondances (fonction inscrireJoueurAPartie) :\n'
 				+ err); return reject(err); 
-			}
-			session.parties.forEach(function(laPartie){		if(laPartie.id == idPartie){   laPartie.addJoueur(idJ);	}	})
+			} // on ajoute le joueur comme inscrit uniquement s'il n'est pas lanceur
+			session.parties.forEach(function(laPartie){		if(laPartie.id == idPartie){   if(idJ != laPartie.idLanceur){	laPartie.addJoueur(idJ); }
+console.log('ajout joueur : ' + idJ + " à partie n° "+ laPartie.id + ", " +  laPartie.inscrits); 	}	})
 			return resolve(1);	
 		});					
 	});
@@ -265,6 +269,7 @@ function inscrireJoueurAPartie(idJ, idPartie)
 exports.inscrireJoueurAPartie = inscrireJoueurAPartie;
 function desinscrireJoueurDunePartie(idJ, idPartie)
 {
+// tout le nécessaire : BDD et objet session.parties
 	return new Promise(function(resolve, reject){
 		var connexion = require('./module_connexion.js').connexion();
 		connexion.connect();
@@ -299,6 +304,7 @@ function getInfosPartieFromDate(dateFormatSQL)
 }
 exports.creationPartie = function(idLanceur, jeu)
 {
+console.log('demande création partie par : ' + idLanceur);
 	return new Promise(function(resolve, reject){
 		var connexion = require('./module_connexion.js').connexion();
 		connexion.connect();
@@ -316,17 +322,16 @@ exports.creationPartie = function(idLanceur, jeu)
 		};
 		connexion.query("INSERT INTO parties SET ?", donnees, function(err, result) {
 			if(err){		console.log('erreur lors de l\'insertion : ' + err); return reject(err);  }
+
 			getInfosPartieFromDate(donnees['date_creation']).then(infos => {
 				partie.setId(infos['id']);
 				session.parties.push(partie);
-
-				inscrireJoueurAPartie(partie.idLanceur, partie.id)
-					.then(function(){ 	return resolve(partie);		})
-					.catch(err => {console.log("js bdd creation partie catch" + err); reject(err);  });
+				return resolve(partie);
 			}).catch(err => {	
 				console.log('erreur getIdDernierePartie catch : ' + err); 
 				reject(err);				
-			});				
+			});	
+								
 		});
 	});
 }
@@ -420,7 +425,7 @@ console.log('annuler partie n° ' + idPartie);
 					}
 					removeCorrespondances
 						.then(function(){
-							return resolve(1);
+							return resolve(idPartie);
 						}).catch(err => { console.log('erreur lors de removeCorrespondances  : ' + err); });
 				});
 			}).catch(err => { console.log('erreur lors de getIdInscritsAUnePartieFromIdPartie  : ' + err); });

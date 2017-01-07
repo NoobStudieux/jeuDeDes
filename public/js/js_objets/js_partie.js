@@ -30,9 +30,19 @@ function Partie(idLanceur, jeu)
 	}
 	this.supprJoueur = function(idJoueurASuppr)
 	{
+console.log("joueur " + idJoueurASuppr + " suppression de la partie : " + this.id);
 		var monIndex = -1;
-		compteur = 0;
+		compteur = 0; var listTempo = [];
 		this.inscrits.forEach(function(idJ){
+			if(idJoueurASuppr != idJ){listTempo.push(idJoueurASuppr);}
+		})
+		this.inscrits = listTempo;
+console.log("monIndex = " + monIndex + "joueur " + idJoueurASuppr + " supprimé de la partie : " + this.id + ", reste(nt) : " + this.inscrits.length + " joueurs : ");
+this.inscrits.forEach(function(i){
+	console.log(i);
+})
+console.log("listTempo l : " + listTempo.length);
+		/*this.inscrits.forEach(function(idJ){
 			if(idJoueurASuppr == idJ)
 			{
 				monIndex = compteur;
@@ -41,8 +51,14 @@ function Partie(idLanceur, jeu)
 		})
 		if(monIndex != -1)
 		{
-			this.inscrits.slice(monIndex,1); return 1;
-		}else{ console.log("erreur suppression j, partie.supprJoueur : monIndex=-1"); return 0;}
+		//	this.inscrits.slice(monIndex,1); 
+			delete this.inscrits[monIndex];
+console.log("monIndex = " + monIndex + "joueur " + idJoueurASuppr + " supprimé de la partie : " + this.id + ", reste(nt) : " + this.inscrits.length + " joueurs : ");
+this.inscrits.forEach(function(i){
+	console.log(i);
+})
+			return 1;
+		}else{ console.log("erreur suppression j, partie.supprJoueur : monIndex=-1"); return 0;}*/
 	}
 	this.hydrate = function(id, date_creation, date_fin, idVainqueur, listIdInscrits)
 	{
