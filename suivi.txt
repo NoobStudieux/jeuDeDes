@@ -1,6 +1,6 @@
 rendu à recupérer les parties, puis MAJ des inscrits.
-à priori OK pour recupération à connexion, sauf desfois window.joueurs undefined.
-Pour le reste, i,scription ect à peufiner coté client sinon semble OK.
+
+mesInscrits sur .ejs, majMaPartie connecte.js
 
 La phase connexion, gestion session.joueurs est OK.
 
@@ -13,17 +13,18 @@ URGENT :
 
 une fois l'affichage des parties gérer (+ envoi) : voir MAJ inscris/désinscris
 Attention, points à revoir :
-
-- verification si le membre est déjà inscrits pour ne pas limiter la verfi coté client
+- recupération parties existantes OK sauf pour le dernier connecté (surement un pb de Maj window.joueuers
+- verification si le membre est déjà inscrits ou lanceur pour ne pas limiter la verfi coté client
 - inscritsFromIdPartie est utile ? passer la partie directement ...
 - pk l'insertion à l'inscription en table correspondances ne fonctionne pas avec les 2 foreign key
 	=> mis un UNIQUE (idMembre, idPartie). Suffit ?
 	
--appuyer sur entrer dans un champ (pseudo ou password) pour une connexion envoi le post
+- appuyer sur entrer dans un champ (pseudo ou password) pour une connexion envoi le post
 directement au lieu de passer par l'action du "faux bouton" (qui entraine un trigger du vrai post pour le traiter avant l'envoi; dans js/js_pages/accueil.js)
 
--le bouton quitter procède à une redirection ( à voir en cas de changement d'environnement )
+- le bouton quitter procède à une redirection (à voir en cas de changement d'environnement)
 
+- connecte.js : alléger le code ne faire qu'un avec validInscr et nouvelleINscr par exemple ?)
 penser à : 
 
 - dans : js.BDD.JS : - remplacer par une jointure qui rechope l'idPartie f°(idLanceur) et etat='lancee' serait meilleur

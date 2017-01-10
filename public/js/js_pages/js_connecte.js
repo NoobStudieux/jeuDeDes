@@ -1,5 +1,5 @@
 window.joueur; // concerne le joueur client de cette page
-window.joueurs; // les autres joueurs connectés
+window.joueurs = ['vide']; // les autres joueurs connectés
 window.amIInscris = false;  // passera à false à l'inscription puis à true à désinscription, fin partie ou annulation partie
 window.autrePartie = null; // ici sera stockée la div englobante (ex pour retrouver l'affichage sur une demande d'inscription)
 
@@ -8,12 +8,13 @@ var socket = io.connect('http://localhost:8080');
 
 function majListeJoueurs(listeJoueurs)
 {
-console.log('maj liste joueurs' + listeJoueurs.length);
+console.log("client : " + window.joueur.pseudo + " maj liste joueurs" + listeJoueurs.length);
     $('#listeJoueurs li').remove();
     var list=[];
     listeJoueurs.forEach(function(joueur){
         $('#listeJoueurs').append($('<li>').text(joueur.pseudo));
     })
+    window.joueurs = listeJoueurs;
 }
 function refreshSInscrire()
 {
@@ -49,6 +50,20 @@ function refreshSInscrire()
         window.autrePartie = $(divEnglobante);
     });
 }
+function supprPartie(idP)
+{
+    var monIndex = -1, compteur = 0 ;
+    window.parties.forEach(function(p){
+        if(p.id == idP)
+        {
+            monIndex = compteur;
+        }
+        compteur ++;
+    })
+    if(monIndex != -1){   window.parties.slice(monIndex, 1);     }
+    else{     
+alert("supprPartie + tentative de supprimer une partie inexistante : " + idP);      }
+}
 function maCouleur()
 {
     var rgbArray = [];			
@@ -75,26 +90,108 @@ function amIInscrisFalse()
     $('.sInscrire').prop('disabled',false);
     window.amIInscris = false;
 }
+function getPseudoJoueurFromId(id)
+{
+    var bonPseudo = "introuvé";
+    window.joueurs.forEach(function(j){
+console.log('getPseudoJoueurFromId, id : ' + id + ', j.id : ' + j.id);
+        if(id == j.id){     console.log('pseudo trouvé : ' + j.pseudo); bonPseudo = j.pseudo;    }
+    })
+    return bonPseudo;
+}
+function MAJInscritsAutrePartie(idJ, partie)
+{
+    var divEnglobanteParente;
+    var parentTrouve = false;
+    var pseudo = getPseudoJoueurFromId(idJ);
+    $('.idAutrePartie').each(function(elemId){
+        if(partie.id == parseInt($(this).text().trim()))
+        {
+            divEnglobanteParente = $(this).parent().parent();
+$(divEnglobanteParente).css('border', '3px solid white');
+            parentTrouve = true;
+        }
+    })
+    if(parentTrouve)
+    {
+        var inscritsAutrePartie = $(divEnglobanteParente).children('.inscritsAutrePartie');
+        var maListe = $(inscritsAutrePartie).children('ul');
+        $(maListe).children().remove();
+        partie.inscrits.forEach(function(inscrit){
+            var monLi = $('<li>').append($('<a>').text(idJ).addClass('inscritsId'), "  -  ", $('<a>').text(inscrit).addClass('inscritsPseudo'));
+            $(maListe).append(monLi);
+        })
+        $(inscritsAutrePartie).append($('<a>').text("nouvel inscrit").addClass('etatInscr').hide().fadeIn(200, function(){
+            setTimeout(function(){
+                $(inscritsAutrePartie).children('a').fadeOut(500, function(){
+                    $(inscritsAutrePartie).children('a').remove();
+                })
+            },2000);
+        }));
+    }else{     socket.emit('pbNonGere', "parent non trouvé function MAJInscritsAutrePartie côté client ");}
+}
+function majMaPartie(partie)
+{
+    if(parseInt($('#maPartieId').text().trim()) == partie.id)
+    {      
+        $('#mesInscrits').children('').remove();
+        partie.inscrits.forEach(function(idI){
+            var pseudo = getPseudoJoueurFromId(idI);
+            var newLi = $('<li>').text(idI);    
+            $('#mesInscrits').append(newLi);
+        })
+    }else{
+alert("id non correspondante");
+    }
+}
 function majInscritsAutrePartie(eleminscritsAutrePartie, partie)
 {
-  //  $(eleminscritsAutrePartie).children('').remove();
+    $(eleminscritsAutrePartie).children('').remove();
     var monUl = $('<ul>');
     partie.inscrits.forEach(function(unInscrit){ // itération des id inscrits
+console.log("majInscritsAutrePartie:  recherche inscris parmi : ");
+console.log(unInscrit);
+console.log("carnet j : " + window.joueurs.length);
         window.joueurs.forEach(function(j){
-            if(j.id == unInscrit){
-                $(monUl).append($('<li>').text(j.pseudo));
+console.log(j.id + "  -  " + j.pseudo);
+console.log(j.id + "  ==  " + unInscrit + " ? ");
+            if(parseInt(j.id) == parseInt(unInscrit)){
+console.log("oui");
+     //           $(monUl).append($('<li>').append($('<a>').text(j.id).addClass('inscritsId') + " - " + $('<a>').text(j.pseudo).addClass('inscritsPseudo')));
+               /* var textID = $('<a>').text(j.id).addClass('inscritsId');
+                var textPseudo = $('<a>').text(j.pseudo).addClass('inscritsPseudo');
+                var newLi = $('<li>').append(textID + " - " + textPseudo);
+                $(monUl).append(newLi);*/
+                var newLi = $('<li>').append($("<a>").text(j.id).addClass('inscritsId'), "  -  ", $("<a>").text(j.pseudo).addClass('inscritsPseudo'));
+                $(monUl).append(newLi);
+
+console.log("ajout du joueur : " + j.pseudo);
                 $(eleminscritsAutrePartie).append(monUl);
             }
         })   
     })
 }
+function getPartieFromId(idP)
+{
+    var laPartie = false;
+console.log('getPartieFromId : window.parties, nb : ' + window.parties.length);
+    window.parties.forEach(function(p){
+console.log('if(p.id == idP)' + p.id + ", idP : " + idP);
+        if(p.id == idP)
+        {
+            laPartie = p;
+        }
+    })
+console.log('getPartieFromId : partie : ' + laPartie.id + ", " + laPartie.jeu + ", " + laPartie.date_creation + ', LANCEUR : ' + laPartie.idLanceur);
+    return laPartie;
+}
 function addAutrePartie(partie)
 {
     var divEnglobante = $('<div>').addClass('autresParties col-md-6').css('backgroundColor', maCouleur());
     var row = $('<div>').addClass('row');
-    var informationsUnePartie = $('<div>').addClass('col-md-4 infosUnePartie');
-    var inscritsAutrePartie = $('<div>').addClass('col-md-4 inscritsAutrePartie');
-    var interactionsUnePartie = $('<div>').addClass('col-md-4 interacUnePartie');
+    var informationsUnePartie = $('<div>').addClass('col-md-4 infosUnePartie').css('backgroundColor', "blue").css('opacity', 0.6);
+    var inscritsAutrePartie = $('<div>').addClass('col-md-4 inscritsAutrePartie').css('backgroundColor', "white").css('opacity', 0.6).text("test inscris");
+    var interactionsUnePartie = $('<div>').addClass('col-md-4 interacUnePartie').css('backgroundColor', "red").css('opacity', 0.6);
     var a1 = $('<a>').text(partie.id).addClass('idAutrePartie badge').css('backgroundColor', maCouleur());
     var a2 = $('<a>').text(partie.jeu).addClass('jeuAutrePartie');
     var a3 = $('<a>').text(partie.date_creation).addClass('dateAutrePartie');
@@ -109,12 +206,16 @@ function addAutrePartie(partie)
 }
 socket.on('majListJoueurs', function(listeJoueurs){
     majListeJoueurs(listeJoueurs);
-    window.joueurs = listeJoueurs;
-console.log("recep listJoueurs : nb : " + listeJoueurs.length);
+console.log("client : " + window.joueur.pseudo + " recep listJoueurs : nb : " + listeJoueurs.length);
+listeJoueurs.forEach(function(j){
+    console.log(j.id + " - " + j.pseudo);
+    })
+console.log("window.joueurs.length : nb : " + window.joueurs.length);
 listeJoueurs.forEach(function(j){
     console.log(j.id + " - " + j.pseudo);
     })
 });
+// a suppr ensuite ? (PAS window.joueurs (MAJ à chaque co / deco))
 socket.on('listParties' , function(parties){
 console.log("recep listParties, nb : " + parties.length);
     parties.forEach(function(p){addAutrePartie(p);
@@ -123,7 +224,16 @@ console.log('partie : ' + p.id + ", nb inscrits : " + p.inscrits.length);})
 socket.on('votreJoueur', function(joueur){
     window.joueur = joueur;
 });
+socket.on('initClient' , function(data){
+    window.parties = data['parties'];
+    majListeJoueurs(data['joueurs']);
+    window.parties.forEach(function(p){
+console.log('Recp Init parties : ' + p.id + "  -  id Lanceur  :  " + p.idLanceur)
+        addAutrePartie(p);
+    })
+});
 socket.on('votreNouvellePartie' , function(partie){
+    window.parties.push(partie);
     $('#maPartieId').text(partie.id);
     $('#maPartieJeu').text(partie.jeu);
     $('#maPartieDateCreation').text(partie.date_creation);
@@ -134,7 +244,7 @@ socket.on('votreNouvellePartie' , function(partie){
                 $('#advertPartie').css("visibility", "hidden");
             }, 2000);
         });
-    amIInscrisFalse();
+    amIInscrisTrue();
 console.log("votreNouvellePartie " + partie.id + ", nb inscrits : " + partie.inscrits.length);
 });
 socket.on('nouvellePartie' , function(partie){
@@ -142,7 +252,7 @@ socket.on('nouvellePartie' , function(partie){
 });
 socket.on('annulationPartie' , function(idPartie){
     var divEnglobanteParente;
-    var compteur = 0;
+ //   var compteur = 0;
     var parentTrouve = false;
 console.log('recep annulationPartie : ' + idPartie);
     $('.idAutrePartie').each(function(elemId){
@@ -167,7 +277,7 @@ console.log('recep annulationPartie : ' + idPartie);
     }else{     socket.emit('pbNonGere', "parent non trouvé sur socket.on 'annulationPartie' côté client ");}
     amIInscrisTrue();
 });
-socket.on('VotrePartieAnnulee' , function(mess){
+socket.on('VotrePartieAnnulee' , function(data){
     $('#advertPartie').text("partie annulée.").hide().css("visibility", "visible")
         .fadeIn(1000, function(){
             setTimeout(function(){
@@ -181,7 +291,8 @@ socket.on('VotrePartieAnnulee' , function(mess){
                     $('#maPartieDateCreation').text("");
                     $("#pasDeMaPartie").hide().css("visibility", "visible").fadeIn(800);
                 });
-                amIInscrisTrue();
+                amIInscrisFalse();
+supprPartie(data['idPartie']); // ne pas faire lorsque le client est lanceur
             }, 2000);
         });
 });
@@ -218,6 +329,9 @@ socket.on('validInscr' , function(data){ // data['idJ'] et idP
             $(etatInscr).css('border', 'groove 8px red');       // etatInscr inchopable ! 
             $(etatInscr).text("inscription validée ! ");
             amIInscrisTrue(); $(monButt).prop("disabled", false);
+            partie = getPartieFromId(data['idP']);
+            MAJInscritsAutrePartie(data['idJ'], partie);
+//addInscritAtPartie(data['idJ'], data['idP']);
          /*   $(etatInscr).fadeOut(500, function(){
                 $(this).removeClass('etatInscrAttente').addClass('etatInscr').text("inscription OK").fadeIn(500);
 });*/
@@ -254,8 +368,15 @@ socket.on('validInscrKO' , function(data){ // data['idJ'] et idP
     window.autrePartie = null;
 });
 socket.on('nouvelleInscrAUnePartie' , function(data){ // data['idJ'] et idP
-
-            // traitement ... ? 
+console.log(window.joueur.pseudo + ", recep nouvelleInscrAUnePartie, data['idJ'] :" + data['idJ'] + ", data['idP']" + data['idP']);
+    var partie = getPartieFromId(data['idP']);
+    partie.inscrits.push(data['idJ']);
+    if(window.joueur.id == partie.idLanceur){    majMaPartie(partie); 
+console.log("vous etes le lanceur.");    }
+    else{   
+            MAJInscritsAutrePartie(data['idJ'], partie);
+//  addInscritAtPartie(data['idJ'], data['idP']);   
+console.log("vous etes inscrits. partie.idLanceur : " + partie.idLanceur + ", data['idJ'] : " + data['idJ']);    }
 });
 socket.on('nouvelleDesinscrAUnePartie' , function(data){ // data['idJ'] et idP
 
@@ -266,8 +387,8 @@ $(function(){
     document.getElementById('lancerPartie').disabled = true;
     socket.emit('getMoiJoueur', monPseudo); // à reception serveur : recupère la socket id
     socket.emit('initClient');      // le serveur renverra la liste des joueurs, des parties
-    socket.emit('getListJoueurs');
-    socket.emit('getListParties', "svp");
+    /*socket.emit('getListJoueurs');
+    socket.emit('getListParties', "svp");*/
     
     window.onbeforeunload = function() {
         socket.emit('deconnexion', window.joueur.id);
@@ -308,7 +429,20 @@ $(function(){
     $('#testMySocket').click(function(){
         socket.emit('testMySocket', window.joueur.id);
     });
+    $('#testMyJoueurs').click(function(){
+        console.log("window.joueurs : ");
+        window.joueurs.forEach(function(j){
+            console.log(j.id + "  -  " + j.pseudo);
+        })
+    });
+    $('#MAJMyJoueurs').click(function(){
+        console.log("MAJMyJoueurs : ");
+        socket.emit('getListJoueurs');
+    });
+    $('#amIInscris').click(function(){
+        console.log("amIInscris  ? : " + window.amIInscris);
+    });
     socket.on('testSocket' , function(mess){ 
             console.log("Reception sockret : " + mess);
-    }); 
+    });
 });

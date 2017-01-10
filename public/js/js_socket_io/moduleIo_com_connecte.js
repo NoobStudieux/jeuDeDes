@@ -165,7 +165,11 @@ console.log("onDecoJoueurGererSesParties OK");
 		});
 	});
 	socket.on('getListJoueurs', function(pseudoNouveau) {
-console.log('envoi majListJoueurs, nb : ' + session.joueursConnectes.length);
+		socket.broadcast.emit('majListJoueurs', session.joueursConnectes);
+	});
+	socket.on('initClient', function() {
+console.log('envoi initClient, nb joueurs : ' + session.joueursConnectes.length + ", nb parties : " + session.parties.length);
+		socket.emit('initClient', {joueurs: session.joueursConnectes, parties: session.parties});
 		socket.broadcast.emit('majListJoueurs', session.joueursConnectes);
 	});
 	socket.on('getMoiJoueur', function(pseudo) {
@@ -205,10 +209,11 @@ console.log("création partie OK sur socket.on('nouvellePartie',");
 		console.log(data['pseudo'] + " demande l'annulation de sa partie , id : " + data['idPartie']);
 		require('../js_bdd.js').annulerUnePartie(data['idPartie'])
 			.then(function(){
-				socket.emit('VotrePartieAnnulee', 'OK');
+				socket.emit('VotrePartieAnnulee', data['idPartie']);
 				socket.broadcast.emit('annulationPartie', data['idPartie']);
 			}).catch(err => {
 				socket.emit('VotrePartieAnnulee', 'KO');
+// attention le KO n'est pas correctgement traité
 				socket.broadcast.emit('annulationPartie', data['idPartie']);
 				console.log("partie  #" + idPartie + " IMPOSSIBLE à annuler : " + err);
 		 });
@@ -225,12 +230,12 @@ console.log(data['idJ'] + " demande inscription à n° " + data['idP']);
 		{
 			require('../js_bdd.js').inscrireJoueurAPartie(data['idJ'], data['idP'])
 				.then(function(){
-					socket.emit('validInscr', data);
-					socket.broadcast.emit('nouvelleInscrAUnePartie', data);
-	console.log(data['idJ'] + " a bien été inscris à n° " + data['idP']);
+					socket.emit('validInscr', data); // va sur le client venant de s'inscrire
+					socket.broadcast.emit('nouvelleInscrAUnePartie', data); // à l'arrivée, un tri est opéré : lanceur traité différemment
+console.log(data['idJ'] + " a bien été inscris à n° " + data['idP']);
 				}).catch(err => {
 					socket.emit('validInscrKO', data);
-					console.log("partie  #" + data['idP'] + " IMPOSSIBLE d'inscrire ce joueur : " + data['idP'] + " erreur : " + err);
+console.log("partie  #" + data['idP'] + " IMPOSSIBLE d'inscrire ce joueur : " + data['idP'] + " erreur : " + err);
 			});
 		}
 //		else{socket.emit('validInscrKO', data);}		// A DEFINIR

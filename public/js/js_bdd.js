@@ -260,9 +260,15 @@ console.log("insert correspondances ,idMembre :  " + idJ + ", idPartie :  " + id
 				console.log('erreur lors de l\'insertion dans correspondances (fonction inscrireJoueurAPartie) :\n'
 				+ err); return reject(err); 
 			} // on ajoute le joueur comme inscrit uniquement s'il n'est pas lanceur
-			session.parties.forEach(function(laPartie){		if(laPartie.id == idPartie){   if(idJ != laPartie.idLanceur){	laPartie.addJoueur(idJ); }
-console.log('ajout joueur : ' + idJ + " à partie n° "+ laPartie.id + ", " +  laPartie.inscrits); 	}	})
-			return resolve(1);	
+		//	var part = false;
+			session.parties.forEach(function(laPartie){		
+				if(laPartie.id == idPartie)
+				{   
+					if(idJ != laPartie.idLanceur){	laPartie.addJoueur(idJ); //  part = laPartie; 
+					}
+				}	
+			})
+			return resolve(-1);	
 		});					
 	});
 }

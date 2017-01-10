@@ -11,6 +11,11 @@
                 <ul class="nav navbar-nav">
                     <li><a href="#" class="head">Profil</a></li>
                     <li><a href="#">à propos</a></li>
+                    <li class="dropdown"><a data-toggle="dropdown" href="#">Client-only<b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#">10 000</a></li>
+                        </ul>
+                        </li>
                 </ul>
                 <form action='/' method='get' id="quitterForm">
                      <ul class="nav navbar-nav pull-right"><li><a id="quitter" class="glyphicon glyphicon-flag ">Quitter</a></li></ul>
@@ -19,9 +24,18 @@
         </nav>
         <div id="dev">
     <!--        UNIQUEMENT POUR LE <dev></dev>      -->
-            <button id="afficherListParties">afficherListParties</button>
-            <button id="afficherJoueurs">afficherJoueurs</button>
-            <button id="testMySocket">testMySocket</button>
+            <div>
+                <h5>var serveur</h5>
+                <button id="afficherListParties">afficherListParties</button>
+                <button id="afficherJoueurs">afficherJoueurs</button>
+                <button id="testMySocket">testMySocket</button>
+            </div>
+            <div>
+                <h5>var page</h5>
+                <button id="testMyJoueurs">testMyJoueurs</button>
+                <button id="MAJMyJoueurs">MAJMyJoueurs</button>
+                <button id="amIInscris">amIInscris  ?</button>
+            </div>
         <div>
     </div>
 </header>
