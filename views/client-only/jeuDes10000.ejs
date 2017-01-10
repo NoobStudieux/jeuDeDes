@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>jeu des 10000</title>
+        <link rel="stylesheet" type="text/css" href="jeuDesDixMille.css" />
+        <link rel="stylesheet" type="text/css" href="../../public/bootstrap/css/bootstrap.min.css" />
+        <link rel="stylesheet" type="text/css" href="../../public/css/style_arcade.css" />
+        <link rel="stylesheet" type="text/css" href="../../public/jquery/jquery_UI/jquery-ui.css" />
+     </head>
+
+    <body>
+		<div id="intro">
+			<h3>Bienvenue au jeu des dix Mille</h3>
+			<div id="selecNbJ">
+				<h5>Sélectionner le nombre de joueurs : </h5>
+					<select id="nbJ">
+						
+					</select> <button id="btnNbJ">commencer</button>
+			</div>
+		</div>
+		<div id="nomsJ">
+				<h5>Rentrer le nom des joueurs : </h5>
+		</div>
+		<div id="conteneur" class="contenair-fluid">
+			<div id="Des">
+				<div>
+					<table>
+						<tr><td><div class="caseDes" id="caseDeBlanc"></div></td><td><div class="logo" id="logoBlan">s</div></td></tr>
+						<tr><td><div class="caseDes" id="caseDeGris"></div></td><td><div class="logo" id="logoGris"></div></td></tr>
+						<tr><td><div class="caseDes" id="caseDeBleu"></div></td><td><div class="logo" id="logoBleu"></div></td></tr>
+						<tr><td><div class="caseDes" id="caseDeRouge"></div></td><td><div class="logo" id="logoRoug"></div></td></tr>
+						<tr><td><div class="caseDes" id="caseDeVert"></div></td><td><div class="logo" id="logoVert"></div></td></tr>
+					</table>
+				</div>
+				
+				<div>
+					<h5 id="nomJCourant">nomJCourant</h5>
+					<br />
+					<button id="boutonLancer"></button>
+					<br /><br /><br />
+					<button id="terminerCoup">terminer Coup</button>
+				</div>
+				<div>
+					<div id="deja10000">
+					</div>
+					<div id="affichPoints">
+					</div>
+					<div id="infosConsignes">
+						
+					</div>
+					<div id="infosCoup">
+						
+					</div>
+				</div>
+			</div>
+			<div id="encarJ">
+				<div id="affichJoueurs">
+					
+				</div>
+				<div id="infosPoints">
+						
+				</div>
+			</div>
+				
+			
+		</div>
+
+		<script src="../../public/jquery/jquery-3.1.1.js" ></script>
+        <script src="../../public/jquery/jquery_UI/jquery-ui.js"></script>
+	<!--	<script src="../../0_jquery/jquery_UI/jquery-ui.js"></script>   nécessaire ? -->
+		<script src="modules/affichage/module_affichage.js"></script>
+		<script src="modules/joueurs/joueurs.js"></script>
+		<script src="modules/jeu/module_des.js"></script>
+		<script src="modules/jeu/module_jeu.js"></script>
+		<script src="jeuDesDixMille.js"></script>
+    </body>
+</html>
+

@@ -21,11 +21,14 @@ app.set('view engine', 'ejs');
 app.use(session({secret: 'todotopsecret'}))
 //	.use(express.static(__dirname + '/public')) // ne suffit pas
     .get('/', function(req, res) { 
-			res.render('pages/accueil.ejs');
+		res.render('pages/accueil.ejs');
+	})
+// gestion des "client-only"
+	.get('/connecte/jeuDes10000', function(req, res){
+		res.render('client-only/jeuDes10000.ejs');
 	})
 	.post('/connecte', function(req, res){
 		var credentials = {		"pseudo": req.body.pseudo, "password": req.body.password		};
-		
 		require('./public/js/js_bdd.js').idsVerif(credentials)
 			.then(thatsOK => {
 				if(thatsOK)
@@ -51,7 +54,7 @@ app.use(session({secret: 'todotopsecret'}))
 						});
 					}
 				else{
-					res.render('pages/pasConnecte.ejs');
+					res.render('pages/pasConnecte.ejs', {raison: "motif non determiné"});
 			}}).catch(err => {
 				console.log('catch idsVerif ' + err);
 				res.render('pages/pasConnecte.ejs');
@@ -78,9 +81,12 @@ app.use(session({secret: 'todotopsecret'}))
 	.get('/public/js/js_pages/js_connecte.js', function(req, res){
 			res.sendFile(__dirname + '/public/js/js_pages/js_connecte.js');
 	})
+	.get('/views/client-only/jeuDes10000.html', function(req, res){
+			res.sendFile(__dirname + '/views/client-only/jeuDes10000.html');
+	})
 // On redirige vers root si la page demandée n'est pas trouvée 
 	.use(function(req, res, next){
-			res.redirect('/');
+		res.redirect('/');
 	 });
 	
 var server = http.createServer(app);

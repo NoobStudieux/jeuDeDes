@@ -11,6 +11,9 @@ URGENT :
 - repercuter dans addPartie (mettre un if pour la création  du bouton)
 - js/pages/connecte.js : socket.on('validInscr' : etatInscr ne s'actualise pas. Apparement mauvaise sélection de interactionsUnePartie
 
+
+CLIENT ONLY : ne fonctionneront pour l'instant qu'en ouvrant les fichiers ejs directement (sans passer par l'app), puis qd la simplification des fichiers statiques sera OK cela sera possible).
+
 une fois l'affichage des parties gérer (+ envoi) : voir MAJ inscris/désinscris
 Attention, points à revoir :
 - recupération parties existantes OK sauf pour le dernier connecté (surement un pb de Maj window.joueuers

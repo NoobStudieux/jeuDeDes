@@ -53,7 +53,7 @@ td
 	text-shadow: 1px 1px 1px black;
 }
 /* page connectée */
-#quitterForm:hover
+#quitterForm:hover, #clientOnlyDixMille:hover
 {
 	cursor:pointer;
 }

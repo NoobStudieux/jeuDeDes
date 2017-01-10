@@ -1,0 +1,134 @@
+#encarJ, #aJoueurCourant
+{
+	font-family: Verdana; font-weight: 300;
+	font-style: Italic;
+	text-shadow : 1px solid black;
+	text-align : center;
+}
+#encarJ
+{
+	color: rgb(58, 121, 61);
+}
+.aJoueurCourant
+{
+	color: rgb(161, 67, 25);
+}
+.aJrPoints
+{
+	color: darkBlue; font-size: 13px; font-weight: 600;
+	text-shadow: 2px 2px 2px white;
+}
+#infosCoup
+{
+	margin-top : 10px;
+	background-color : rgb(12, 167 ,74);
+	height: 150px;
+	border-radius: 15px;
+	padding: 10px;
+	border: solid 2px rgb(82,241, 146);
+	font-family: Verdana; font-size: 17px;
+	font-style: Italic; font-weight: 100;
+	text-shadow : 1px 1px 3px rgb(239, 251, 47);
+	color : rgb(28, 50, 74);
+}
+#infosPoints
+{
+	width: 75%;
+	height: 50px;
+	border-radius: 15px;
+	padding: 7px;
+	font-family: Impact; font-size: 14px;
+	font-style : bold;
+	text-align : center;
+	color : rgb(26, 35, 25);
+	text-shadow : 1px 1px 3px rgb(181, 158, 6);
+	background-color : rgb(191, 85, 85);
+	border: solid 2px rgb(102, 14, 14);
+}
+#infosConsignes
+{
+	width: 75%; margin : auto;
+	height: 75px;
+	border-radius: 15px;
+	padding: 7px;
+	font-family: Verdana; font-size: 14px;
+	color : rgb(92, 104,24);
+	text-shadow : 1px 1px 3px rgb(28, 50, 74);
+	background-color : rgb(82,241, 146);
+	border: solid 2px rgb(12, 167 ,74);
+}
+.caseDes
+{
+	height: 50px; width:50px;
+	margin-left:0px; margin-right:0px;
+	border-box: 0;
+	padding:0;
+	border : 1px solid #1877D5;
+	margin-top: 15px;
+}
+.logo  /* contenant les cadenas infos   */
+{
+	height: 22px; width:22px;
+	margin-left: 8px; margin-top: 8px;
+	border-radius: 2px;
+}
+#boutonLancer, #terminerCoup, #encarJ
+{
+	width:150px; heiht: 30px;
+}
+.lancerOK
+{
+	color:green;
+	background-color:rgb(227,202,85); font-weight: bold;
+	box-shadow : 8px 8px 8px rgba( 253, 170, 10 ,0.7);
+	text-shadow : 1px 1px 1px red;
+}
+.lancerNOK
+{
+	color:purple; font-family:Impact; font-style: Italic;
+	background-color:rgb(177, 169, 169);
+	box-shadow : 2px 2px 2px rgba( 56, 27, 233 ,0.7);
+}
+.désMisDeCoté
+{
+	border: rgb(101,24,24) 3px solid;
+}
+body
+{
+	background-color: rgb(6, 35, 56);
+}
+#nomsJ, #conteneur{		visibility:hidden;	}
+#intro, #nomsJ
+{
+	padding : 10px;
+	background-color: rgb(22, 75, 94); border: solid black 1px;
+	border-radius : 10px;
+}
+#conteneur
+{
+	display: flex; padding : 10px;
+	background-color: rgb(22, 75, 94); border: solid black 1px;
+	border-radius : 10px;
+}
+#Des
+{
+	display: flex;
+}
+#Des div
+{
+	margin-left: 10px;
+}
+#Des, #encarJ
+{
+	min-height : 80%; width: 45%; background-color: rgb(101, 157, 177); border: solid black 1px;
+	margin-left: 10px;
+	border-radius : 10px;
+	padding: 10px;
+}
+h5
+{
+	text-align : center;
+	font-family: Verdana; font-size: 20px;
+	color : rgb(80, 39,2);
+	text-shadow : 1px 1px 3px rgb(227,131, 45);
+}
