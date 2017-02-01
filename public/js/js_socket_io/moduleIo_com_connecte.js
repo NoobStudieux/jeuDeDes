@@ -167,6 +167,9 @@ console.log("onDecoJoueurGererSesParties OK");
 	socket.on('getListJoueurs', function(pseudoNouveau) {
 		socket.broadcast.emit('majListJoueurs', session.joueursConnectes);
 	});
+	socket.on('majMyParties', function() {
+		socket.emit('majMyParties', session.parties);
+	});
 	socket.on('initClient', function() {
 console.log('envoi initClient, nb joueurs : ' + session.joueursConnectes.length + ", nb parties : " + session.parties.length);
 		socket.emit('initClient', {joueurs: session.joueursConnectes, parties: session.parties});
@@ -200,9 +203,9 @@ console.log("création partie OK sur socket.on('nouvellePartie',");
 							});
 					}).catch(err =>{
 						console.log("err socket.on creationPartie /catch  creationPartie : " + err);
-					}).catch(err =>{
-						console.log("err socket.on creationPartie / catch idFromPseudo : " + err);
-					});
+				}).catch(err =>{
+					console.log("err socket.on creationPartie / catch idFromPseudo : " + err);
+				});
 			});
 	});
 	socket.on('annulerMaPartie', function(data){
@@ -231,6 +234,7 @@ console.log(data['idJ'] + " demande inscription à n° " + data['idP']);
 			require('../js_bdd.js').inscrireJoueurAPartie(data['idJ'], data['idP'])
 				.then(function(){
 					socket.emit('validInscr', data); // va sur le client venant de s'inscrire
+					socket.emit('nouvelleInscrAUnePartie', data); 
 					socket.broadcast.emit('nouvelleInscrAUnePartie', data); // à l'arrivée, un tri est opéré : lanceur traité différemment
 console.log(data['idJ'] + " a bien été inscris à n° " + data['idP']);
 				}).catch(err => {

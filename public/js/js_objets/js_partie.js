@@ -20,7 +20,14 @@ function Partie(idLanceur, jeu)
 	{
 		this.nbJMax = 0; this.nbJMin = 0;
 	}
-	this.addJoueur = function(idNveauJoueur){	this.inscrits.push(idNveauJoueur);	}
+	this.addJoueur = function(idNveauJoueur){	
+		var doublon = false;
+		this.inscrits.forEach(function(inscrit){
+			if(inscrit == idNveauJoueur){	doublon = true;	}
+		})
+		if(doublon){	console.log("partie : "+ this.id +" : NVL INSCRIT NE PEUT ÊTRE AJOUTER CAR DÉJÀ INSCRIT"); return false;}
+		else{this.inscrits.push(idNveauJoueur); return true; }
+	}
 	this.allInscrits = function(listIdInscrits)
 	{
 		this.inscrits = [];  	// r-a-z
@@ -30,14 +37,16 @@ function Partie(idLanceur, jeu)
 	}
 	this.supprJoueur = function(idJoueurASuppr)
 	{
-console.log("joueur " + idJoueurASuppr + " suppression de la partie : " + this.id);
 		var monIndex = -1;
 		compteur = 0; var listTempo = [];
 		this.inscrits.forEach(function(idJ){
-			if(idJoueurASuppr != idJ){listTempo.push(idJoueurASuppr);}
+			if(idJoueurASuppr != idJ){listTempo.push(idJ);}
+			else{monIndex=compteur;}
+			compteur ++;
 		})
 		this.inscrits = listTempo;
-console.log("monIndex = " + monIndex + "joueur " + idJoueurASuppr + " supprimé de la partie : " + this.id + ", reste(nt) : " + this.inscrits.length + " joueurs : ");
+	//	this.inscrits.slice(monIndex, 1);
+console.log("joueur " + idJoueurASuppr + " supprimé de la partie : " + this.id + ", reste(nt) : " + this.inscrits.length + " joueurs : ");
 this.inscrits.forEach(function(i){
 	console.log(i);
 })

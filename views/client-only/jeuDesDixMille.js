@@ -27,9 +27,9 @@ $(function(){
 	$('.dés').on('click',traitementClickImage); // fin  ".dés".click
 //evenements intro :
 	$('#btnNbJ').click(function(){
-			var nbJ = $('#nbJ').val();
-			genererChampsNoms(nbJ, window.joueurs);
-			$("#nomsJ").css('visibility', 'visible');
+		var nbJ = $('#nbJ').val();
+		genererChampsNoms(nbJ, window.joueurs);
+		$("#nomsJ").css('visibility', 'visible');
 	});
 	
 // événement jeu	

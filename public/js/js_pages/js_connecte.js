@@ -2,7 +2,7 @@ window.joueur; // concerne le joueur client de cette page
 window.joueurs = ['vide']; // les autres joueurs connectés
 window.amIInscris = false;  // passera à false à l'inscription puis à true à désinscription, fin partie ou annulation partie
 window.autrePartie = null; // ici sera stockée la div englobante (ex pour retrouver l'affichage sur une demande d'inscription)
-
+window.parties = [];
 // com .io 
 var socket = io.connect('http://localhost:8080');
 
@@ -27,9 +27,8 @@ function refreshSInscrire()
         var aEtatInscr = $(interactionsUnePartie).children('.etatInscr').removeClass("etatInscr").addClass("etatInscrAttente").hide(); 
         if(window.amIInscris == true) // je suis déjà inscris, je me désinscris
         {
-            $(aEtatInscr).hide().text("désinscription demandée").fadeIn(500);
+            $(aEtatInscr).hide().text("désinscription demandée").fadeIn(500, function(){this.fadeOut(1000);});
             $(buttInscr).text("S'inscrire");  // possibilité d'ajouter une vérification avec .val(inscription); (qui ne modifie pas le texte mais simplement la avaleur du bouton)
-            $('.sInscrire').prop('disabled', true); // en attente de la réponse serveur, tous les boutons sInscrire se disablent
             amIInscrisFalse();
             var dataDesinscr = {
                 idJ: window.joueur.id,
@@ -37,9 +36,8 @@ function refreshSInscrire()
             };
             socket.emit('desinscription', dataDesinscr);
         }else{      // sinon je m'inscris
-            $(aEtatInscr).hide().text("inscription demandée").fadeIn(500);
+            $(aEtatInscr).hide().text("inscription demandée").fadeIn(500, function(){$(this).fadeOut(1000);});
             $(buttInscr).text("Se désinscrire");
-            $('.sInscrire').prop('disabled', true);
             amIInscrisTrue();
             var dataInscr = {
                 idJ: window.joueur.id,
@@ -50,7 +48,10 @@ function refreshSInscrire()
         window.autrePartie = $(divEnglobante);
     });
 }
-function supprPartie(idP)
+/*
+    function supprPartie(idP)
+*/
+/*function supprPartie(idP)
 {
     var monIndex = -1, compteur = 0 ;
     window.parties.forEach(function(p){
@@ -63,7 +64,7 @@ function supprPartie(idP)
     if(monIndex != -1){   window.parties.slice(monIndex, 1);     }
     else{     
 alert("supprPartie + tentative de supprimer une partie inexistante : " + idP);      }
-}
+}*/
 function maCouleur()
 {
     var rgbArray = [];			
@@ -81,6 +82,7 @@ function amIInscrisTrue()
     $('nvllePartie').prop('disabled',true);
     $('lancerPartie').prop('disabled',true);
     $('.sInscrire').prop('disabled',true);
+    $('.nvllePartie').prop('disabled',true);
     window.amIInscris = true;
 }
 function amIInscrisFalse()
@@ -103,7 +105,6 @@ function MAJInscritsAutrePartie(idJ, partie)
 {
     var divEnglobanteParente;
     var parentTrouve = false;
-    var pseudo = getPseudoJoueurFromId(idJ);
     $('.idAutrePartie').each(function(elemId){
         if(partie.id == parseInt($(this).text().trim()))
         {
@@ -116,10 +117,12 @@ $(divEnglobanteParente).css('border', '3px solid white');
     {
         var inscritsAutrePartie = $(divEnglobanteParente).children('.inscritsAutrePartie');
         var maListe = $(inscritsAutrePartie).children('ul');
-        $(maListe).children().remove();
+        $(maListe).children('li').remove();
         partie.inscrits.forEach(function(inscrit){
-            var monLi = $('<li>').append($('<a>').text(idJ).addClass('inscritsId'), "  -  ", $('<a>').text(inscrit).addClass('inscritsPseudo'));
+            var pseudo = getPseudoJoueurFromId(inscrit);
+            var monLi = $('<li>').append($('<a>').text(inscrit).addClass('inscritsId'), "  -  ", $('<a>').text(pseudo).addClass('inscritsPseudo'));
             $(maListe).append(monLi);
+console.log('majInscrits partie : ' + partie.id + ", " + inscrit + " : " + pseudo);
         })
         $(inscritsAutrePartie).append($('<a>').text("nouvel inscrit").addClass('etatInscr').hide().fadeIn(200, function(){
             setTimeout(function(){
@@ -132,24 +135,27 @@ $(divEnglobanteParente).css('border', '3px solid white');
 }
 function majMaPartie(partie)
 {
+console.log("majMaPartie, jmax : " + partie.nbJMax + ", min : " + partie.nbJMin);
     if(parseInt($('#maPartieId').text().trim()) == partie.id)
     {      
         $('#mesInscrits').children('').remove();
         partie.inscrits.forEach(function(idI){
             var pseudo = getPseudoJoueurFromId(idI);
-            var newLi = $('<li>').text(idI);    
+            var newLi = $('<li>').text(idI + " - " + pseudo);    
             $('#mesInscrits').append(newLi);
         })
-    }else{
-alert("id non correspondante");
-    }
+        if(partie.inscrits <= partie.nbJMax && partie.inscrits>=partie.nbJMin)
+        {
+            $('#lancerMaPartie').prop('disabled', false);
+        }else{$('#lancerMaPartie').prop('disabled', true);}
+    }else{alert("id non correspondante majMaPartie");   }
 }
 function majInscritsAutrePartie(eleminscritsAutrePartie, partie)
 {
     $(eleminscritsAutrePartie).children('').remove();
     var monUl = $('<ul>');
     partie.inscrits.forEach(function(unInscrit){ // itération des id inscrits
-console.log("majInscritsAutrePartie:  recherche inscris parmi : ");
+console.log("majInscritsAutrePartie:  recherche inscrits parmi : ");
 console.log(unInscrit);
 console.log("carnet j : " + window.joueurs.length);
         window.joueurs.forEach(function(j){
@@ -162,7 +168,7 @@ console.log("oui");
                 var textPseudo = $('<a>').text(j.pseudo).addClass('inscritsPseudo');
                 var newLi = $('<li>').append(textID + " - " + textPseudo);
                 $(monUl).append(newLi);*/
-                var newLi = $('<li>').append($("<a>").text(j.id).addClass('inscritsId'), "  -  ", $("<a>").text(j.pseudo).addClass('inscritsPseudo'));
+                var newLi = $('<li>').append($("<a>").text(j.id).addClass('inscritsId'), "  -&  ", $("<a>").text(j.pseudo).addClass('inscritsPseudo'));
                 $(monUl).append(newLi);
 
 console.log("ajout du joueur : " + j.pseudo);
@@ -175,6 +181,7 @@ function getPartieFromId(idP)
 {
     var laPartie = false;
 console.log('getPartieFromId : window.parties, nb : ' + window.parties.length);
+    if(window.parties.length == 0){return false;}
     window.parties.forEach(function(p){
 console.log('if(p.id == idP)' + p.id + ", idP : " + idP);
         if(p.id == idP)
@@ -216,6 +223,9 @@ listeJoueurs.forEach(function(j){
     })
 });
 // a suppr ensuite ? (PAS window.joueurs (MAJ à chaque co / deco))
+socket.on('majMyParties' , function(parties){
+    window.parties = parties;
+});
 socket.on('listParties' , function(parties){
 console.log("recep listParties, nb : " + parties.length);
     parties.forEach(function(p){addAutrePartie(p);
@@ -233,7 +243,8 @@ console.log('Recp Init parties : ' + p.id + "  -  id Lanceur  :  " + p.idLanceur
     })
 });
 socket.on('votreNouvellePartie' , function(partie){
-    window.parties.push(partie);
+ //   window.parties.push(partie);
+
     $('#maPartieId').text(partie.id);
     $('#maPartieJeu').text(partie.jeu);
     $('#maPartieDateCreation').text(partie.date_creation);
@@ -249,6 +260,7 @@ console.log("votreNouvellePartie " + partie.id + ", nb inscrits : " + partie.ins
 });
 socket.on('nouvellePartie' , function(partie){
     addAutrePartie(partie);
+    socket.emit("majMyParties");
 });
 socket.on('annulationPartie' , function(idPartie){
     var divEnglobanteParente;
@@ -276,8 +288,10 @@ console.log('recep annulationPartie : ' + idPartie);
         }, 2000); // les parties annulées disparaissent après 2 secondes
     }else{     socket.emit('pbNonGere', "parent non trouvé sur socket.on 'annulationPartie' côté client ");}
     amIInscrisTrue();
+    socket.emit("majMyParties");
 });
 socket.on('VotrePartieAnnulee' , function(data){
+    
     $('#advertPartie').text("partie annulée.").hide().css("visibility", "visible")
         .fadeIn(1000, function(){
             setTimeout(function(){
@@ -292,29 +306,13 @@ socket.on('VotrePartieAnnulee' , function(data){
                     $("#pasDeMaPartie").hide().css("visibility", "visible").fadeIn(800);
                 });
                 amIInscrisFalse();
-supprPartie(data['idPartie']); // ne pas faire lorsque le client est lanceur
+                var part  = getPartieFromId(data['idPartie']);
+                if(window.joueur.id != part.idLanceur){supprPartie(data['idPartie']);}
+                socket.emit("majMyParties");
             }, 2000);
         });
+        
 });
-/*socket.on('vousAvezEteDesinscris' , function(mess){
-// desinscription par exemple qd un membre a annulé sa partie
-
-  $('#advertPartie').text("partie annulée.").hide().css("visibility", "visible")
-        .fadeIn(1000, function(){
-            setTimeout(function(){
-                $('#maPartieCree').fadeOut(1000, function(){
-                    $('#advertPartie').hide();
-                    $(this).css("visibility", "hidden");
-                    document.getElementById('lancerPartie').disabled = false;
-                    document.getElementById('nvllePartie').disabled = false;
-                    $('#maPartieId').text("");
-                    $('#maPartieJeu').text("");
-                    $('#maPartieDateCreation').text("");
-                    $("#pasDeMaPartie").hide().css("visibility", "visible").fadeIn(800);
-                });
-            }, 2000);
-    });
-});*/       // desinscrisOk ou valide existe
 socket.on('validInscr' , function(data){ // data['idJ'] et idP
     var divEnglobante = $(window.autrePartie);
     var informationsUnePartie = $(divEnglobante).children('.infosUnePartie');
@@ -338,20 +336,24 @@ socket.on('validInscr' , function(data){ // data['idJ'] et idP
             $(monButt).prop('disabled', false);
         }else{socket.emit('pbNonGere', "cote client socket.on('validInscr') : non correspondance idJ envoyé et window.joueur.id " );      } // y a eu un couac
     }else{socket.emit('pbNonGere', "cote client socket.on('validInscr') : non correspondance idPart envoyé et DOM trouvé (window.autrePartie)" );      } // y a eu un couac
-    window.autrePartie = null;
+    socket.emit("majMyParties");
 });
 socket.on('validDesinscr' , function(data){ // data['idJ'] et idP
+
     var divEnglobante = $(window.autrePartie);
     var informationsUnePartie = $(divEnglobante).children('.infosUnePartie');
     var interactionsUnePartie = $(divEnglobante).children('.interacUnePartie');
     var monButt = $(interactionsUnePartie).children('button');
     var idPartie = parseInt($(informationsUnePartie).children('.idAutrePartie').text().trim());
-var etatInscr = $(interactionsUnePartie).children('.etatInscr');  // still doesn't works
+var etatInscr = $(interactionsUnePartie).children('.etatInscr');
     if(data['idP'] == idPartie)
     {
         if(data['idJ'] == window.joueur.id) // on peut procéder inscr sereinement
         {
-            $(interactionsUnePartie).css('border', 'red');
+            var partie = getPartieFromId(data['idP']);
+console.log('partie recup : ' + partie.id + ", " + partie.idLanceur);
+            partie.supprJoueur(window.joueur.id);
+            MAJInscritsAutrePartie(data['idJ'], partie);
 $(etatInscr).text("désinscription validée ! ");
          /*   $(etatInscr).fadeOut(500, function(){
                 $(this).removeClass('etatInscrAttente').addClass('etatInscr').text("inscription OK").fadeIn(500);
@@ -361,16 +363,19 @@ $(etatInscr).text("désinscription validée ! ");
     }else{socket.emit('pbNonGere', "cote client socket.on('validDesinscr') : non correspondance idPart envoyé et DOM trouvé (window.autrePartie)" );      } // y a eu un couac
     window.autrePartie = null;
     amIInscrisFalse();
+    socket.emit("majMyParties");
 });
 socket.on('validInscrKO' , function(data){ // data['idJ'] et idP
 
             // traitement ... ? 
     window.autrePartie = null;
+    socket.emit("majMyParties");
 });
 socket.on('nouvelleInscrAUnePartie' , function(data){ // data['idJ'] et idP
 console.log(window.joueur.pseudo + ", recep nouvelleInscrAUnePartie, data['idJ'] :" + data['idJ'] + ", data['idP']" + data['idP']);
     var partie = getPartieFromId(data['idP']);
-    partie.inscrits.push(data['idJ']);
+console.log('nouvelleInscrAUnePartie ' + partie.id + ", nb inscrits : " + partie.inscrits + ", data['idP'] : " + data['idP']);
+    partie.addJoueur(data['idJ']);
     if(window.joueur.id == partie.idLanceur){    majMaPartie(partie); 
 console.log("vous etes le lanceur.");    }
     else{   
@@ -379,8 +384,12 @@ console.log("vous etes le lanceur.");    }
 console.log("vous etes inscrits. partie.idLanceur : " + partie.idLanceur + ", data['idJ'] : " + data['idJ']);    }
 });
 socket.on('nouvelleDesinscrAUnePartie' , function(data){ // data['idJ'] et idP
-
-            // traitement ... ? 
+console.log("nouvelleDesinscrAUnePartie : j " +  data['idJ'] + ", p : " +  data['idP']);
+    var partie = getPartieFromId(data['idP']);
+    partie.supprJoueur(data['idJ']);
+    if(partie.idLanceur == window.joueur.id){majMaPartie(partie);}
+    else{MAJInscritsAutrePartie(data['idJ'], partie);}
+    socket.emit("majMyParties");
 });
 $(function(){
     var monPseudo = $('#bienvenueJ').text();  // récupération du pseudo
@@ -397,7 +406,7 @@ $(function(){
         $('#quitterForm').submit();
     });
     $('#nvllePartie').change(function(){
-        if($(nvllePartie).val() != "Sélectionner"){    document.getElementById('lancerPartie').disabled = false;     }
+        if($(nvllePartie).val() != "Sélectionner" && !amIInscris){    document.getElementById('lancerPartie').disabled = false;     }
         else{     document.getElementById('lancerPartie').disabled = true;      }
     });
     $('#lancerPartie').click(function(){
@@ -443,6 +452,6 @@ $(function(){
         console.log("amIInscris  ? : " + window.amIInscris);
     });
     socket.on('testSocket' , function(mess){ 
-            console.log("Reception sockret : " + mess);
+            console.log("Reception socket : " + mess);
     });
 });

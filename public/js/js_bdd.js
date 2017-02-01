@@ -241,7 +241,6 @@ console.log("getJoueurFromId" + joueur.mail + ", " + joueur.pseudo);
 exports.getJoueurFromId = getJoueurFromId;
 function inscrireJoueurAPartie(idJ, idPartie)
 {
-console.log('inscrireJoueurAPartie ,idJ :  ' + idJ + ",  idPartie :  " + idPartie);
 // objet et BDD
 	return new Promise(function(resolve, reject){
 		var connexion = require('./module_connexion.js').connexion();
@@ -264,11 +263,17 @@ console.log("insert correspondances ,idMembre :  " + idJ + ", idPartie :  " + id
 			session.parties.forEach(function(laPartie){		
 				if(laPartie.id == idPartie)
 				{   
-					if(idJ != laPartie.idLanceur){	laPartie.addJoueur(idJ); //  part = laPartie; 
-					}
+					var isDejaInscrit = false;
+					laPartie.inscrits.forEach(function(inscrit){
+console.log("joueuer déjà inscri" + inscrit + " == " + idJ);
+						if(inscrit == idJ) {isDejaInscrit = true;}
+					})
+					if(isDejaInscrit && laPartie.idLanceur != idJ){
+						console.log("inscrireJoueurAPartie, inscription impossible, joueuer déjà inscrit");
+						return reject("reject inscrireJoueurAPartie, inscription impossible, joueuer déjà inscrit");
+					}else{laPartie.addJoueur(idJ);return resolve(true);}
 				}	
 			})
-			return resolve(-1);	
 		});					
 	});
 }

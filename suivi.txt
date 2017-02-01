@@ -8,10 +8,7 @@ URGENT :
 - socket.on('deconnexion') => reste un souci qd un inscrit non lanceur de déconnecte (sans se desinscrire précédemment
 	=> à priori OK
 - bloquer l'inscription au lancement
-- repercuter dans addPartie (mettre un if pour la création  du bouton)
-- js/pages/connecte.js : socket.on('validInscr' : etatInscr ne s'actualise pas. Apparement mauvaise sélection de interactionsUnePartie
-
-
+this.supprJoueur : ne fonctionne pas bien (desinscr cote client)
 CLIENT ONLY : ne fonctionneront pour l'instant qu'en ouvrant les fichiers ejs directement (sans passer par l'app), puis qd la simplification des fichiers statiques sera OK cela sera possible).
 
 une fois l'affichage des parties gérer (+ envoi) : voir MAJ inscris/désinscris
